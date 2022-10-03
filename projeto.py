@@ -10,12 +10,17 @@ def limpa_texto(cad):
     cad = cad.replace('\f',' ')
     cad = cad.replace('\r',' ')
     while int(cad.find('  ')) > 0:
-        cad = cad.replace('  ',' ')       #Enquanto existirem sequencias de 2 ou mais espaços, substitui as sequências de 2 espaços por 1
+        cad = cad.replace('  ',' ')     #Enquanto existirem sequencias de 2 ou mais espaços, substitui as sequências de 2 espaços por 1
     return cad.strip(' ') 
 
 def corta_texto(cad,col):
-    cad[0:col].lstrip().rstrip()
-    cad[col]
+    cut = ''
+    if len(cad) > col:
+        while cad.rfind(' ') >= col:
+            cut = cad[:cad.rfind]           #corta até ao ultimo espaço enquanto existirem espaços, e como tal palavras, fora do comprimento especificado
+        cut = cad[:cad.rfind(' ')].strip(' ')
+        uncut = cad[cad.rfind(' '):].strip(' ')
+    return cut, uncut   
 
 def insere_espacos(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna"""
