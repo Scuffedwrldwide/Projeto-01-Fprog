@@ -3,7 +3,15 @@
 def limpa_texto(cad):
     """Recebe cadeia de caracteres (cad) e devolve uma cadeia correspondente à
     remoção de caracteres ASCII brancos, substituidos pelo espaço (0x20)"""
-    cad.replace(['\t\n\v\f\r'],' ')     #Devolve a cadeia fornecida trocando os caracteres definidos entre [] pelo espaço ' '
+    cad = cad.strip(' ')                #Remove espaços a cada lado do input
+    cad = cad.replace('\t',' ')         #Devolve a cadeia fornecida trocando os caracteres definidos  pelo espaço ' '
+    cad = cad.replace('\n',' ')
+    cad = cad.replace('\v',' ')
+    cad = cad.replace('\f',' ')
+    cad = cad.replace('\r',' ')
+    while int(cad.find('  ')) > 0:
+        cad = cad.replace('  ',' ')       #Enquanto existirem sequencias de 2 ou mais espaços, substitui as sequências de 2 espaços por 1
+    return cad.strip(' ') 
 
 def corta_texto(cad,col):
     cad[0:col].lstrip().rstrip()
