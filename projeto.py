@@ -26,12 +26,13 @@ def insere_espacos(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna"""
     if cad.find(' ') == False:          #Não encontrar espaços implica a existência de uma só palavra 
         while len(cad) < col:
-            cad.append(' ')
+            cad = cad.append(' ')
 
-    else:       
+    else:      
         while len(cad) < col:
-            for i in cad.index(' '):    #A cada ocorrência de espaço na string fornecida, inserir um espaço, até alcançar a largura desejada
-                cad.insert(' ')
+            
+    
+    return cad
 
 def justifica_texto(cad, col):
     if type(cad) != str or type(col) != int or (cad.find(' ') == False and len(cad) > col):
