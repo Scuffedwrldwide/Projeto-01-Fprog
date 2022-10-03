@@ -9,7 +9,7 @@ def corta_texto(cad,col):
     cad[0:col].lstrip().rstrip()
     cad[col]
 
-def insere_espaço(cad, col):
+def insere_espacos(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna"""
     if cad.find(' ') == False:          #Não encontrar espaços implica a existência de uma só palavra 
         while len(cad) < col:
@@ -24,5 +24,5 @@ def justifica_texto(cad, col):
     if type(cad) != str or type(col) != int or (cad.find(' ') == False and len(cad) > col):
         raise ValueError('argumentos invalidos')
     else:
-        insere_espaço(    insere_espaço(    corta_texto(limpa_texto(cad),col),    col)    ,col)
+        insere_espacos(    insere_espacos(    corta_texto(limpa_texto(cad),col),    col)    ,col)
 
