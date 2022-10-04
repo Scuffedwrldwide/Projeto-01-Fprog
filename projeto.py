@@ -32,8 +32,9 @@ def finaliza_espaços(cad ,col):
 
 def insere_espacos(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna"""
-    if cad.find(' ') == False:                                 #Não encontrar espaços implica a existência de uma só palavra 
-        finaliza_espaços(cad ,col)
+    if cad.find(' ') == -1:                                    #Não encontrar espaços implica a existência de uma só palavra 
+        return finaliza_espaços(cad ,col)
+        
     else:
         count = 1                                              # Número inicial de espaços
         while len(cad) <= col:
@@ -58,3 +59,4 @@ def justifica_texto(cad, col):
         cad = cad + [finaliza_espaços(next,col)]                              
         return tuple(cad)
 
+print(insere_espacos('Fundamentos', 15))
