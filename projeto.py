@@ -45,8 +45,8 @@ def insere_espacos(cad, col):
     return cad
 
 def justifica_texto(cad, col):
-    if type(cad) != str or type(col) != int or (cad.find(' ') == False and len(cad) > col):
-        raise ValueError('argumentos invalidos')
+    if type(cad) != str or type(col) != int or col < 1 or (cad.find(' ') == -1 and len(cad)>col) or len(cad) == 0:
+        raise ValueError('justifica texto: argumentos invalidos')    #Argumentos de tipo errado, cadeia de caracteres nula ou ininterruptamente superior à largura de coluna
     else:
         lines = len(cad)//col           #Prevê o número de linhas necessárias para a justificação
         next = limpa_texto(cad)         #Variavel que guarda o texto restante
@@ -58,9 +58,3 @@ def justifica_texto(cad, col):
         cad = cad + [finaliza_espaços(next,col)]                              
         return tuple(cad)
 
-cad = ('Computers are incredibly  \n\tfast,     \n\t\taccurate'
-            ' \n\t\t\tand  stupid.   \n    Human beings are incredibly  slow  '
-            'inaccurate, and brilliant. \n     Together  they  are powerful   ' 
-            'beyond imagination.')
-
-print(justifica_texto(cad, 60))
