@@ -1,8 +1,4 @@
 #1. Justificação de Texto
-
-from calendar import c
-
-
 def limpa_texto(cad):
     """Recebe cadeia de caracteres (cad) e devolve uma cadeia correspondente à
     remoção de caracteres ASCII brancos, substituidos pelo espaço (0x20)"""
@@ -31,8 +27,7 @@ def corta_texto(cad,col):
 def insere_espacos(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna"""
     if cad.find(' ') == -1:                                    # Não encontrar espaços implica a existência de uma só palavra 
-        return cad.ljust(col,' ')                              
-        
+        return cad.ljust(col,' ')                                     
     else:
         count = 1                                              # Número inicial de espaços
         while len(cad) <= col:
@@ -48,16 +43,13 @@ def justifica_texto(cad, col):
     Aceita tuplos."""
     if type(cad) != str or type(col) != int or col < 1 or ((not col>= cad.find(' ')> -1) and len(cad)>col) or len(cad) == 0:
         raise ValueError('justifica_texto: argumentos invalidos')              
-    
     else:
         lines = len(cad)//col                                                  # Prevê o número de linhas necessárias para a justificação
         next = limpa_texto(cad)                                                # Variavel que guarda o texto restante
-        cad = []
-        
-        if len(cad) > col and lines == 1:                                      # Previne edge case no qual uma unica linha resulta num output
-            lines += 1                                                         # que excede a largura definida.
-
-        for i in range(lines-1):                                               # Itera sobre cada linha exceto a ultima 
+        cad = []       
+        if len(cad) > col and lines == 1:                                      # Previne caso raro no qual uma unica linha resulta num output
+            lines += 1                                                         # que excede a largura definida. eg. justifica_texto('123456 789', 6)
+        for i in range(lines-1):                                               # Itera sobre cada linha exceto a ultima
             cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     # Adiciona à lista a cadeia cortada e espaçada
             next = str(corta_texto(next,col)[1])                               # Prepara a cadeia inalterada para o proximo ciclo
         cad.append(next.ljust(col,' '))                                        # A ultima linha de cada texto é unicamente justificada à esquerda
