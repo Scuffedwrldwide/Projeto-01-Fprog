@@ -9,3 +9,5 @@ Custom Tests/proj_tester.py
 Custom Tests/.update_lock
 Custom Tests/
 
+__pycache__/proj_tester.cpython-310-pytest-7.1.3.pyc
+proj_tester.py
