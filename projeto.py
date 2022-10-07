@@ -16,12 +16,10 @@ def limpa_texto(cad):
 def corta_texto(cad,col):
     """Limita cadeias de caracteres de acordo com a largura fornecida.
     Devolve duas cadeias, a cadeia cortada e a sobrante cadeia inalterada"""
-    cut = cad
-    uncut = ''
-    if len(cad) > col:
-        cut = cad[:col]  
+    cut = cad[:col]  
+    if len(cad) > col and cut.rfind(' ') != -1:                # condição evita funcionalidade indesejável do método .rfind
         cut = cut[:cut.rfind(' ')].strip(' ')                  # Limita a cadeia cortada até ao ultimo espaço eliminando palavras incompletas
-        uncut = cad[len(cut):].strip(' ')                      # A restante cadeia resume a após o ultimo caractér presente na cadeia cortada
+    uncut = cad[len(cut):].strip(' ')                          # A restante cadeia começa a após o ultimo caractér presente na cadeia cortada
     return cut, uncut      
 
 def insere_espacos(cad, col):
@@ -45,10 +43,10 @@ def justifica_texto(cad, col):
         raise ValueError('justifica_texto: argumentos invalidos')              
     else:
         lines = len(cad)//col                                                  # Prevê o número de linhas necessárias para a justificação
-        next = limpa_texto(cad)                                                # Variavel que guarda o texto restante
-        cad = []       
+        next = limpa_texto(cad)                                                # Variavel que guarda o texto restante     
         if len(cad) > col and lines == 1:                                      # Previne caso raro no qual uma unica linha resulta num output
             lines += 1                                                         # que excede a largura definida. eg. justifica_texto('123456 789', 6)
+        cad = []  
         for i in range(lines-1):                                               # Itera sobre cada linha exceto a ultima
             cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     # Adiciona à lista a cadeia cortada e espaçada
             next = str(corta_texto(next,col)[1])                               # Prepara a cadeia inalterada para o proximo ciclo
