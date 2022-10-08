@@ -1,7 +1,8 @@
 #1. Justificação de Texto
 def limpa_texto(cad):
     """Recebe cadeia de caracteres (cad) e devolve uma cadeia correspondente à
-    remoção de caracteres ASCII brancos, substituidos pelo espaço (0x20)"""
+    remoção de caracteres ASCII brancos, substituidos pelo espaço (0x20)
+    eliminando ainda sequências contínuas de espaços"""
     cad = cad.strip(' ')               # Remove espaços a cada lado do input
     cad = cad.replace('\t',' ')        # Devolve a cadeia fornecida trocando os caracteres definidos  pelo espaço ' '
     cad = cad.replace('\n',' ')
@@ -53,4 +54,21 @@ def justifica_texto(cad, col):
         cad.append(next.ljust(col,' '))                                        # A ultima linha de cada texto é unicamente justificada à esquerda
         return tuple(cad)
 
-print(justifica_texto('123456 789', 6))
+#2. Método de Hondt
+def calcula_quocientes(votes, seats):        
+    """"Aceita um dicionário partidos : no. de votos e devolve um dicionário 
+    distinto do original com os quocientes dos resultados
+    desses partidos, segundo o método de Hondt"""
+    results = dict(votes)                    # Cria um dicionário-alvo para os quocientes
+    parties = list(votes.keys())
+    for i in range(0,len(parties)):          # Itera sobre todas as entradas ou "partidos"
+        quo = list()                         # Cria uma lista-destino para os quocientes a serem calculados
+        for d in range(1,seats):             # Para cada divisão
+            quo.append(votes[parties[i]]/d)  # Adiciona o quociente dos votos do partido a ser trabalhado ao fim da lista
+        results.update({parties[i]: quo})    # Atualiza a entrada do respetivo partido com os resultados apurados
+    return results
+
+def atribui_mandatos():
+    
+            
+#3. Solução de Sistemas de Equações
