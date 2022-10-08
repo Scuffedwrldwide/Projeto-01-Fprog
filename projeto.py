@@ -68,7 +68,67 @@ def calcula_quocientes(votes, seats):
         results.update({parties[i]: quo})    # Atualiza a entrada do respetivo partido com os resultados apurados
     return results
 
-def atribui_mandatos():
+def dict_sorter(unsort):
+    """Recebe um dicionário arbitráriamente ordenado e devolve 
+    um dicionário ordenado segundo os valores presentes, em ordem crescente"""
+    count = 0                                # Contador de vezes em que nenhuma operação é necessária
+    unsort = list(unsort.items())            # Lista contendo tuplos ('partido','votos')
+    sort = {}
+    while count < len(unsort):               # Se toda a lista for avaliada sem operações, considera-se ordenada               
+        if count+1 < len(unsort) and (unsort[count])[1] > (unsort[count+1])[1]: # Compara o valor númerico presente num dado
+            unsort.append(unsort[count])                                        # tuplo com o valor numérico do tuplo seguinte
+            unsort.remove(unsort[count])
+            count = 0                        # Os tuplos de valores maiores são sucessivamente 'transportados' para o fim da lista
+        else:
+            count += 1
+    for i in range(len(unsort)):             # Converte a lista de tuplos num dicionário
+        sort.update({(unsort[i])[0]:(unsort[i])[1]})
+    return sort
+
+def atribui_mandatos(votes, seats):
+    """Aceita um dicionário partidos : no de votos e devolve uma lista
+    contendo a lista ordenada dos partidos que obtiveram deputados,
+    por ordem de obtenção"""
+    quo = calcula_quocientes(dict_sorter(votes), seats) # necessária para garantir a correta atribuição em caso de empate
+    parties = list(quo.keys())
+    results = list(quo.values())                           
+    place = list()
+    for i in quo:
+        results.extend(results[0])              # adiciona à lista 'results' os valores obtidos pelo método de hondt
+        results.pop(0)
+    results.sort(reverse=True)                  # Ordena a lista por ordem decrescente de quocientes
+    for i in range(0, len(results)):            # Compara cada quociente da lista 'results'
+        for p in parties:                       # aos quocientes de cada partido segundo a lista 'quo'
+            if results[i] in quo.get(p):
+                place.append(p)                 # Adiciona os partidos à lista place por ordem de eleição de deputados
+    return place[0:seats]                       # Limita a lista ao número de deputados pedido
+
+def obtem_partidos(votes):
+    """Aceita um dicionário cujos valores são dicionários, que por sua vez
+    é constituido por dicionários e devolve a lista alfabéticamente ordenada das chaves"""
+    circles = list(votes.values())              # Lista dos dicionários-resultado dos vários circulos
+    results = []
+    parties = []
+    p = 0                                       # Variável contadora
+    for c in circles:                           # Em cada resultado de um circulo eleitoral, encontrar 
+        results.append(c.get('votos'))          # o dicionário partido:votos 
+
+    for i in results:                           # por cada dicionário partido:votos
+        parties.extend(list(i.keys()))          # adicionar os partidos encontrados à lista
     
+    parties.sort()
+    for i in parties:
+        for l in range(parties.count(i)-1):     # Se existe mais do que uma instância de um partido i
+            parties.remove(i)                   # removem-se as instâncias sobrantes
+    return parties
+
+
+print(obtem_partidos({
+            'Endor':   {'deputados': 7, 
+                        'votos': {'A':12000, 'B':7500, 'C':5250, 'D':3000}},
+            'Hoth':    {'deputados': 6, 
+                        'votos': {'A':9000, 'B':11500, 'D':1500, 'E':5000}},
+            'Tatooine': {'deputados': 3, 
+                        'votos': {'A':3000, 'B':1900}}}))
             
 #3. Solução de Sistemas de Equações
