@@ -1,5 +1,4 @@
 #1. Justificação de Texto
-from ast import arg
 
 
 def limpa_texto(cad):
@@ -63,30 +62,19 @@ def justifica_texto(cad, col):
 #2. Método de Hondt
 def aux_check_arg(arg,typ):
     def error(): raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-    if (type(arg) == dict and arg == {}) or (type(arg) == list and arg == ()) or (type(arg) == int and arg > 0) or (type(arg) == tuple and arg ==()):
+    if (type(arg) == dict and arg == {}) or (type(arg) == list and arg == ()) or (type(arg) == int and arg <= 0) or (type(arg) == tuple and arg ==()):
         error()
     if type(arg) != typ:
         error()
 
-def calcula_quocientes(votes, seats):        
-    """"Aceita um dicionário partidos : no. de votos e devolve um dicionário 
-    distinto do original com os quocientes dos resultados
-    desses partidos, segundo o método de Hondt"""
-    results = dict(votes)                    # Cria um dicionário-alvo para os quocientes
-    parties = list(votes.keys())
-    for i in range(0,len(parties)):          # Itera sobre todas as entradas ou "partidos"
-        quo = list()                         # Cria uma lista-destino para os quocientes a serem calculados
-        for d in range(1,seats):             # Para cada divisão
-            quo.append(votes[parties[i]]/d)  # Adiciona o quociente dos votos do partido a ser trabalhado ao fim da lista
-        results.update({parties[i]: quo})    # Atualiza a entrada do respetivo partido com os resultados apurados
-    return results
-
-def dict_sorter(unsort):
+def aux_dict_sorter(unsort):
     """Recebe um dicionário arbitráriamente ordenado e devolve 
     um dicionário ordenado segundo os valores presentes, em ordem crescente"""
     count = 0                                # Contador de vezes em que nenhuma operação é necessária
     unsort = list(unsort.items())            # Lista contendo tuplos ('partido','votos')
     sort = {}
+    for i in range(0, len(unsort)):
+        aux_check_arg(unsort[i][1],int)      # Numero de votos de um partido constante na lista não pode ser 0s
     while count < len(unsort):               # Se toda a lista for avaliada sem operações, considera-se ordenada               
         if count+1 < len(unsort) and (unsort[count])[1] > (unsort[count+1])[1]: # Compara o valor númerico presente num dado
             unsort.append(unsort[count])                                        # tuplo com o valor numérico do tuplo seguinte
@@ -98,11 +86,54 @@ def dict_sorter(unsort):
         sort.update({(unsort[i])[0]:(unsort[i])[1]})
     return sort
 
+def aux_obtem_partido_votos(info, dep=0):
+    """Dado um dicionário contendo os resultados de vários circlos eleitorais
+    devolve uma lista de dicionários contendo a informação partido:votos
+    ou, opcionalmente, a lista do número de deputados a serem eleitos por circulo"""
+    circles = list(info.values())              # Lista dos dicionários-resultado dos vários circulos
+    results = []
+    for c in circles:  
+        aux_check_arg(c, dict)                        
+        if dep == 1:                            # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
+            results.append(c.get('deputados'))  # o dicionário deputados:'int'
+        else:                                   # Em cada resultado de um circulo eleitoral, encontrar 
+            results.append(c.get('votos'))      # o dicionário partido:votos
+    return results
+
+def aux_sorter(lst, par, index):
+    """Compara tuplos de uma lista com base num critério arbitrário"""
+    breaker = 0                                  # Failsafe contra IndexErrors
+    for i in range(len(lst)):
+        aux_check_arg((lst[par-1])[index],int)   # Número de votos deve ser inteiro
+        aux_check_arg((lst[par])[index],int)
+        if (lst[par-1])[index] < (lst[par])[index]:
+                    lst.append(lst[par-1])
+                    lst.remove(lst[par-1])
+                    par = 0
+        elif par == len(lst) - 1:                # Evita que 'op' exceda o indice máximo da lista                 
+            breaker = 1
+        else:
+            par += 1                             # Caso não haja operação a efetuar, avança-se para o par seguinte
+    return (lst, breaker)
+
+def calcula_quocientes(votes, seats):        
+    """"Aceita um dicionário partidos : no. de votos e devolve um dicionário 
+    distinto do original com os quocientes dos resultados
+    desses partidos, segundo o método de Hondt"""
+    results = dict(votes)                    # Cria um dicionário-alvo para os quocientes
+    parties = list(votes.keys())
+    for i in range(0,len(parties)):          # Itera sobre todas as entradas ou "partidos"
+        quo = list()                         # Cria uma lista-destino para os quocientes a serem calculados
+        for d in range(1,seats+1):           # Para cada divisão
+            quo.append(votes[parties[i]]/d)  # Adiciona o quociente dos votos do partido a ser trabalhado ao fim da lista
+        results.update({parties[i]: quo})    # Atualiza a entrada do respetivo partido com os resultados apurados
+    return results
+
 def atribui_mandatos(votes, seats):
     """Aceita um dicionário partidos : no de votos e devolve uma lista
     contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção"""
-    quo = calcula_quocientes(dict_sorter(votes), seats) # necessária para garantir a correta atribuição em caso de empate
+    quo = calcula_quocientes(aux_dict_sorter(votes), seats) # necessária para garantir a correta atribuição em caso de empate
     parties = list(quo.keys())
     results = list(quo.values())                           
     place = list()
@@ -116,53 +147,28 @@ def atribui_mandatos(votes, seats):
                 place.append(p)                 # Adiciona os partidos à lista place por ordem de eleição de deputados
     return place[0:seats]                       # Limita a lista ao número de deputados pedido
 
-def aux_obtem_partido_votos(info, dep=0):
-    """Dado um dicionário contendo os resultados de vários circlos eleitorais
-    devolve uma lista de dicionários contendo a informação partido:votos
-    ou, opcionalmente, a lista do número de deputados a serem eleitos por circulo"""
-    circles = list(info.values())              # Lista dos dicionários-resultado dos vários circulos
-    results = []
-    for c in circles:                          
-        if dep == 1:                            # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
-            results.append(c.get('deputados'))  # o dicionário deputados:'int'
-        else:                                   # Em cada resultado de um circulo eleitoral, encontrar 
-            results.append(c.get('votos'))      # o dicionário partido:votos
-    return results
-
 def obtem_partidos(info):
+    ### DUVIDA, POSSO VERIFICAR ARGUMENTOS NESTA FUNÇÃO ###
     """Aceita um dicionário cujos valores são dicionários, que por sua vez
     é constituido por dicionários e devolve a lista alfabéticamente ordenada das chaves"""
     results = aux_obtem_partido_votos(info)
     parties = []
     for i in results:                           # por cada dicionário partido:votos
-        parties.extend(list(i.keys()))          # adicionar os partidos encontrados à lista
-    
+        aux_check_arg(i,dict)
+        parties.extend(list(i.keys()))          # adicionar os partidos encontrados à lista de assentos
+    for p in range(0, len(parties)):
+        aux_check_arg(parties[p], str)          # Nome de partido deve ser uma string
+    for p in parties.copy():
+        for l in range(parties.count(p)-1):     # Se existe mais do que uma instância de um partido i
+            parties.remove(p)                   # removem-se as instâncias sobrantes
     parties.sort()
-    for i in parties:
-        for l in range(parties.count(i)-1):     # Se existe mais do que uma instância de um partido i
-            parties.remove(i)                   # removem-se as instâncias sobrantes
     return parties
-
-def aux_sorter(lst, op, index):
-    """Compara tuplos de uma lista com base num critério arbitrário"""
-    breaker = 0                                     # Failsafe contra IndexErrors
-    for i in range(len(lst)):
-        if (lst[op-1])[index] < (lst[op])[index]:
-                    lst.append(lst[op-1])
-                    lst.remove(lst[op-1])
-                    op = 0
-        elif op == len(lst) - 1:                    
-            breaker = 1
-        else:
-            op += 1
-    return (lst, breaker)
 
 def obtem_resultado_eleicoes(info):
     """Aceita um dicionário com várias parcelas informação, por sua vez contida em dicionários,
     e devolve uma lista de tuplos com a relevante informação devidamente analizada"""
-    
+    ### DUVIDA PODE SER DEVOLVIDO UM RESULTADO COM 0 DEPUTADOS? ###
     aux_check_arg(info,dict)
-
     parties = obtem_partidos(info)                      # Lista alfabética dos partidos
     aux_check_arg(parties,list)
     circles = aux_obtem_partido_votos(info)             # Lista dos vários resultados por circulo
@@ -171,39 +177,42 @@ def obtem_resultado_eleicoes(info):
     aux_check_arg(dep,list)
     seats = 0
     results = []
-    op = 0                                              # Variável usada na ordenação de resultados
+    par = 0                                             # Variável usada na ordenação de resultados
     for i in parties:
         aux_check_arg(i,str)                            # Verificação dos argumentos referentes ao partido
         count = 0
         seats = 0
         c = 0
         for r in circles:                               # A avaliação dos quocientes e dos votos é feita circulo a circulo
-            aux_check_arg(dep[c],int)
+            aux_check_arg(dep[c],int)                   # Um circulo deve ter mais que 0 deputados
             aux_check_arg(r,dict)
-            aux_check_arg(r.get(i),int)
+            if type(r.get(i)) == int:
+                aux_check_arg(r.get(i),int)             # Um partido constante na lista não pode ter 0 votos
             seats += (atribui_mandatos(r,dep[c])).count(i)
             c += 1
-            if r.get(i) != None:                        #Evita TypeError exceptions caso o partido não exista no circulo a availar
+            if r.get(i) != None:                        # Evita TypeError exceptions caso o partido não exista no circulo a availar
                 count += int(r.get(i))
-        aux_check_arg(count,int)
+        aux_check_arg(count,int)                        # Um circulo não pode ter tido 0 votos
+            #if seats != 0:
         results.append((i,seats,count))
     
-    while op < len(results):                            # Ordena os túplos do resultado, comparando pares iterativamente
-        if (results[op])[1] == (results[op + 1])[1]:    # Caso haja empates de deputados
-            if (aux_sorter(results, op, 2))[1] == 1:    # Evita um loop infinito 
+    while par < len(results):                           # Ordena os túplos do resultado, comparando pares iterativamente
+        #aux_check_arg((results[op][1]), int)           # Numero de deputados deve ser inteiro
+        #aux_check_arg((results[op+1][1]), int)
+        
+        if (results[par])[1] == (results[par + 1])[1]:  # Caso haja empates de deputados
+            if (aux_sorter(results, par, 2))[1] == 1:   # Evita um loop infinito graças à condição failsafe da função
                 break
-            results = aux_sorter(results, op, 2)[0]
-        elif (results[op])[1] > (results[op + 1])[1]:   # Caso o par comparado esteja devidamente ordenado
-            op +=1                                      # Op indica o par a ser comparado
+            results = aux_sorter(results, par, 2)[0]
+        elif (results[par])[1] > (results[par + 1])[1]: # Caso o par comparado esteja devidamente ordenado
+            par +=1                                     # compara-se o par seguinte
         else:
-            if (aux_sorter(results, op, 1))[1] == 1:
+            if (aux_sorter(results, par, 1))[1] == 1:
                 break
-            results = aux_sorter(results, op, 1)[0]     # Caso o par comparado esteja desordenado
-    
+            results = aux_sorter(results, par, 1)[0]    # Caso o par comparado esteja desordenado
     return results
             
+print(calcula_quocientes(
+            {'A': 12000, 'B': 7500, 'C': 5250, 'D': 3000}, 7))
 
-#print(obtem_resultado_eleicoes({'Endor':   {'deputados': 7, 'votos': {'A':0, 'B':0, 'C':0, 'D':0}},'Hoth':    {'deputados': 3, 'votos': {'A':9000, 'B':11500, 'D':1500, 'E':5000}},}))
-
-            
 #3. Solução de Sistemas de Equações
