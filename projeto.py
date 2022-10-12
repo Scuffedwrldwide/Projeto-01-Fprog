@@ -90,14 +90,14 @@ def aux_obtem_partido_votos(info, dep=0):
     """Dado um dicionário contendo os resultados de vários circlos eleitorais
     devolve uma lista de dicionários contendo a informação partido:votos
     ou, opcionalmente, a lista do número de deputados a serem eleitos por circulo"""
-    circles = list(info.values())              # Lista dos dicionários-resultado dos vários circulos
+    circles = list(info.values())                # Lista dos dicionários-resultado dos vários circulos
     results = []
     for c in circles:  
         aux_check_arg(c, dict)                        
-        if dep == 1:                            # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
-            results.append(c.get('deputados'))  # o dicionário deputados:'int'
-        else:                                   # Em cada resultado de um circulo eleitoral, encontrar 
-            results.append(c.get('votos'))      # o dicionário partido:votos
+        if dep == 1:                             # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
+            results.append(c.get('deputados'))   # o dicionário deputados:'int'
+        else:                                    # Em cada resultado de um circulo eleitoral, encontrar 
+            results.append(c.get('votos'))       # o dicionário partido:votos
     return results
 
 def aux_sorter(lst, par, index):
@@ -110,7 +110,7 @@ def aux_sorter(lst, par, index):
                     lst.append(lst[par-1])
                     lst.remove(lst[par-1])
                     par = 0
-        elif par == len(lst) - 1:                # Evita que 'op' exceda o indice máximo da lista                 
+        elif par == len(lst) - 1:                # Evita que 'par' exceda o indice máximo da lista                 
             breaker = 1
         else:
             par += 1                             # Caso não haja operação a efetuar, avança-se para o par seguinte
