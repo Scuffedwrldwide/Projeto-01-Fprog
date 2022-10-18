@@ -211,8 +211,5 @@ def obtem_resultado_eleicoes(info):
                 break
             results = aux_sorter(results, par, 1)[0]    # Caso o par comparado esteja desordenado
     return results
-            
-print(calcula_quocientes(
-            {'A': 12000, 'B': 7500, 'C': 5250, 'D': 3000}, 7))
 
 #3. Solução de Sistemas de Equações
