@@ -214,3 +214,15 @@ def obtem_resultado_eleicoes(info):
     return results
 
 #3. Solução de Sistemas de Equações
+
+def produto_interno(left,right):
+    """Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
+    representando e vetores; devolve o produto interno desses vetores"""
+    res = 0
+    for i, n  in zip(left, right):
+    ### DUVIDA: TORNAR VERIFICAÇÃO MAIS COMPACTA??###
+        if (type(i) not in [int, float]) or (type(n) not in [int, float]):
+            raise ValueError
+        res += i*n
+    return res
+
