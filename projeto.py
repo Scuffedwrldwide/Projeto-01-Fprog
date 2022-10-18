@@ -200,7 +200,6 @@ def obtem_resultado_eleicoes(info):
         results.append((i,seats,count))
     
     while par < (len(results) - 1):                     # Ordena os túplos do resultado, comparando pares iterativamente
-        
         if (results[par])[1] == (results[par + 1])[1]:  # Caso haja empates de deputados
             if (aux_sorter(results, par, 2))[1] == 1:   # Evita um loop infinito graças à condição failsafe da função
                 break
@@ -211,7 +210,7 @@ def obtem_resultado_eleicoes(info):
             if (aux_sorter(results, par, 1))[1] == 1:
                 break
             results = aux_sorter(results, par, 1)[0]    # Caso o par comparado esteja desordenado
+            par = 0                                     # Salvaguarda contra ignorar comparações de nº de votos
     return results
-
 
 #3. Solução de Sistemas de Equações
