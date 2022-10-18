@@ -61,11 +61,11 @@ def justifica_texto(cad, col):
 
 #2. Método de Hondt
 def aux_check_arg(arg,typ):
-    def error(): raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-    if (type(arg) == dict and arg == {}) or (type(arg) == list and arg == ()) or (type(arg) == int and arg <= 0) or (type(arg) == tuple and arg ==()):
-        error()
+
+    if (type(arg) == dict and arg == {}) or (type(arg) == list and arg == ()) or (type(arg) == int and arg < 0) or (type(arg) == tuple and arg ==()):
+        raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     if type(arg) != typ:
-        error()
+        raise ValueError('obtem_resultado_eleicoes: argumento invalido')
 
 def aux_dict_sorter(unsort):
     """Recebe um dicionário arbitráriamente ordenado e devolve 
@@ -74,7 +74,8 @@ def aux_dict_sorter(unsort):
     unsort = list(unsort.items())            # Lista contendo tuplos ('partido','votos')
     sort = {}
     for i in range(0, len(unsort)):
-        aux_check_arg(unsort[i][1],int)      # Numero de votos de um partido constante na lista não pode ser 0s
+        if type(unsort[i][1]) == str or unsort[i][1]<= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+        aux_check_arg(unsort[i][1], int)     # Numero de votos de um partido constante na lista não pode ser 0s
     while count < len(unsort):               # Se toda a lista for avaliada sem operações, considera-se ordenada               
         if count+1 < len(unsort) and (unsort[count])[1] > (unsort[count+1])[1]: # Compara o valor númerico presente num dado
             unsort.append(unsort[count])                                        # tuplo com o valor numérico do tuplo seguinte
@@ -101,7 +102,7 @@ def aux_obtem_partido_votos(info, dep=0):
     return results
 
 def aux_sorter(lst, par, index):
-    """Compara tuplos de uma lista com base num critério arbitrário"""
+    """Compara e ordena tuplos de uma lista com base num critério arbitrário"""
     breaker = 0                                  # Failsafe contra IndexErrors
     for i in range(len(lst)):
         aux_check_arg((lst[par-1])[index],int)   # Número de votos deve ser inteiro
@@ -109,7 +110,7 @@ def aux_sorter(lst, par, index):
         if (lst[par-1])[index] < (lst[par])[index]:
                     lst.append(lst[par-1])
                     lst.remove(lst[par-1])
-                    par = 0
+                    par = 1
         elif par == len(lst) - 1:                # Evita que 'par' exceda o indice máximo da lista                 
             breaker = 1
         else:
@@ -124,7 +125,7 @@ def calcula_quocientes(votes, seats):
     parties = list(votes.keys())
     for i in range(0,len(parties)):          # Itera sobre todas as entradas ou "partidos"
         quo = list()                         # Cria uma lista-destino para os quocientes a serem calculados
-        for d in range(1,seats+1):           # Para cada divisão
+        for d in range(1,seats+1):           
             quo.append(votes[parties[i]]/d)  # Adiciona o quociente dos votos do partido a ser trabalhado ao fim da lista
         results.update({parties[i]: quo})    # Atualiza a entrada do respetivo partido com os resultados apurados
     return results
@@ -150,7 +151,8 @@ def atribui_mandatos(votes, seats):
 def obtem_partidos(info):
     ### DUVIDA, POSSO VERIFICAR ARGUMENTOS NESTA FUNÇÃO ###
     """Aceita um dicionário cujos valores são dicionários, que por sua vez
-    é constituido por dicionários e devolve a lista alfabéticamente ordenada das chaves"""
+    é constituido por dicionários e devolve a lista alfabéticamente ordenada das chaves
+    destes ultimos, evitando repetições"""
     results = aux_obtem_partido_votos(info)
     parties = []
     for i in results:                           # por cada dicionário partido:votos
@@ -165,9 +167,10 @@ def obtem_partidos(info):
     return parties
 
 def obtem_resultado_eleicoes(info):
-    """Aceita um dicionário com várias parcelas informação, por sua vez contida em dicionários,
-    e devolve uma lista de tuplos com a relevante informação devidamente analizada"""
-    ### DUVIDA PODE SER DEVOLVIDO UM RESULTADO COM 0 DEPUTADOS? ###
+    """Aceita um dicionário com várias parcelas de informação (Circulo, Deputados, Votos, Partidos), 
+    por sua vez contida em dicionários (Deputados, Votos), e devolve uma lista de tuplos
+    com a relevante informação devidamente analizada (Partido, Deputados, Votos)"""
+
     aux_check_arg(info,dict)
     parties = obtem_partidos(info)                      # Lista alfabética dos partidos
     aux_check_arg(parties,list)
@@ -178,13 +181,14 @@ def obtem_resultado_eleicoes(info):
     seats = 0
     results = []
     par = 0                                             # Variável usada na ordenação de resultados
+    
     for i in parties:
         aux_check_arg(i,str)                            # Verificação dos argumentos referentes ao partido
         count = 0
         seats = 0
         c = 0
         for r in circles:                               # A avaliação dos quocientes e dos votos é feita circulo a circulo
-            aux_check_arg(dep[c],int)                   # Um circulo deve ter mais que 0 deputados
+            if type(dep[c]) != int or dep[c] <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
             aux_check_arg(r,dict)
             if type(r.get(i)) == int:
                 aux_check_arg(r.get(i),int)             # Um partido constante na lista não pode ter 0 votos
@@ -193,12 +197,9 @@ def obtem_resultado_eleicoes(info):
             if r.get(i) != None:                        # Evita TypeError exceptions caso o partido não exista no circulo a availar
                 count += int(r.get(i))
         aux_check_arg(count,int)                        # Um circulo não pode ter tido 0 votos
-            #if seats != 0:
         results.append((i,seats,count))
     
-    while par < len(results):                           # Ordena os túplos do resultado, comparando pares iterativamente
-        #aux_check_arg((results[op][1]), int)           # Numero de deputados deve ser inteiro
-        #aux_check_arg((results[op+1][1]), int)
+    while par < (len(results) - 1):                     # Ordena os túplos do resultado, comparando pares iterativamente
         
         if (results[par])[1] == (results[par + 1])[1]:  # Caso haja empates de deputados
             if (aux_sorter(results, par, 2))[1] == 1:   # Evita um loop infinito graças à condição failsafe da função
@@ -211,5 +212,6 @@ def obtem_resultado_eleicoes(info):
                 break
             results = aux_sorter(results, par, 1)[0]    # Caso o par comparado esteja desordenado
     return results
+
 
 #3. Solução de Sistemas de Equações
