@@ -1,5 +1,6 @@
-#1. Justificação de Texto
-
+##########################
+#1. Justificação de Texto#
+##########################
 
 def limpa_texto(cad):
     """Recebe cadeia de caracteres (cad) e devolve uma cadeia correspondente à
@@ -56,10 +57,10 @@ def justifica_texto(cad, col):
         cad.append(next.ljust(col,' '))                                        # A ultima linha de cada texto é unicamente justificada à esquerda
         return tuple(cad)
 
+####################
+#2. Método de Hondt#
+####################
 
-
-
-#2. Método de Hondt
 def aux_check_arg(arg,typ):
 
     if (type(arg) == dict and arg == {}) or (type(arg) == list and arg == ()) or (type(arg) == int and arg < 0) or (type(arg) == tuple and arg ==()):
@@ -213,7 +214,9 @@ def obtem_resultado_eleicoes(info):
             par = 0                                     # Salvaguarda contra ignorar comparações de nº de votos
     return results
 
-#3. Solução de Sistemas de Equações
+####################################
+#3. Solução de Sistemas de Equações#
+####################################
 
 def produto_interno(left,right):
     """Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
@@ -226,3 +229,12 @@ def produto_interno(left,right):
         res += i*n
     return res
 
+def verifica_convergencia(matrix,const,sol,per):
+    """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
+    um tuplo de soluções e um numero real correspondente à percisão pretendida"""
+    for line, c in zip(matrix, const): 
+        if abs(produto_interno(line,sol) - c) >= per: return False
+    return True
+
+print(verifica_convergencia(
+            ((1, -0.5), (-1, 2)), (-0.4, 1.9), (0.1001, 1), 0.001))
