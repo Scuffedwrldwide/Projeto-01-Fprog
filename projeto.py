@@ -236,5 +236,21 @@ def verifica_convergencia(matrix,const,sol,per):
         if abs(produto_interno(line,sol) - c) >= per: return False
     return True
 
-print(verifica_convergencia(
-            ((1, -0.5), (-1, 2)), (-0.4, 1.9), (0.1001, 1), 0.001))
+def retira_zeros_diagonal(matrix, const):
+    resmat, resconst = list(), list()
+    n = -1
+    breaker = 0
+    while n >= -len(matrix) and breaker < len(matrix):
+        breaker = 0
+        for line in matrix:
+            if line[n] != 0 and line not in resmat:       # Evita repetições de linhas
+                resmat.insert(0,line)
+                resconst.insert(0, const[matrix.index(line)])
+                n-=1
+                break
+            else: breaker +=1                             # Evita loops infinitos com linhas nulas
+    if breaker != len(matrix): return tuple(resmat), tuple(resconst)
+    raise ValueError
+    
+
+print(retira_zeros_diagonal(((0, 0, 0), (1, 0, 0), (0, 1, 0)), (1, 2, 3)))
