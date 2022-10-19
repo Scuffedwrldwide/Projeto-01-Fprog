@@ -234,37 +234,44 @@ def produto_interno(left,right):
     for i, n  in zip(left, right):
     ### DUVIDA: TORNAR VERIFICAÇÃO MAIS COMPACTA??###
         if (type(i) not in [int, float]) or (type(n) not in [int, float]):
-            raise ValueError
+            raise ValueError('resolve_sistema: argumentos invalidos')
         res += i*n
     return res
 
-def verifica_convergencia(matrix,const,sol,per):
+def verifica_convergencia(matrix,const,sol,acc):
     """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
     um tuplo de soluções e um numero real correspondente à percisão pretendida"""
     for line, c in zip(matrix, const): 
-        if abs(produto_interno(line,sol) - c) >= per: return False
+        if abs(produto_interno(line,sol) - c) >= acc: return False
     return True
 
 def retira_zeros_diagonal(matrix, const):
     """Recebe um tuplo de tuplos representando as linhas de uma matriz, e um tuplo
     de constantes"""
-    resmat, resconst = list(), list()
-    n = -1
-    breaker = 0
-    while n >= -len(matrix) and breaker < len(matrix):
-        breaker = 0
-        for line in matrix:
-            if line[n] != 0 and line not in resmat:       # Evita repetições de linhas
-                resmat.insert(0,line)
-                resconst.insert(0, const[matrix.index(line)])
-                n-=1
-                break
-            else: breaker +=1                             # Evita loops infinitos com linhas nulas
-    if breaker != len(matrix): return tuple(resmat), tuple(resconst)
-    raise ValueError
-    
+    matrix, const = list(matrix), list(const)
+
+    for l in range(0, len(matrix)):
+            for n in range(0, len(matrix)):
+                if  matrix[l][l] == 0 and matrix[n][l] != 0 and matrix[l][n] != 0:
+                    matrix[l], matrix[n] = matrix[n], matrix[l]
+                    const[l], const[n] = const[n], const[l]
+                    break
+    return tuple(matrix), tuple(const)
+   
 def eh_diagonal_dominante(matrix):
+    """Recebe um tuplo de tuplos correspondente a uma matriz, verifica que o módulo do valor
+    constante na diagonal é superior à soma dos módulos dos restantes """
     for line in matrix:
-        if line[matrix.index(line)] < aux_abssum_array(line) - abs(line[matrix.index(line)]): 
+        if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]): 
             return False
     return True
+
+def resolve_sistema(matrix,const,acc):
+    matrix, const = retira_zeros_diagonal(matrix, const)
+    sol = [0 for i in range(len(const))]
+    if not eh_diagonal_dominante(matrix):
+        raise ValueError('resolve_sistema: matriz nao diagonal dominante')
+    while not verifica_convergencia(matrix,const,sol,acc):
+        break
+        
+print(retira_zeros_diagonal(((0, 1, 1), (1, 0, 0), (0, 1, 0)), (1, 2, 3)))
