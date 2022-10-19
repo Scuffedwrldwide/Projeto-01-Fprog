@@ -218,6 +218,15 @@ def obtem_resultado_eleicoes(info):
 #3. Solução de Sistemas de Equações#
 ####################################
 
+def aux_abssum_array(arg):
+    """Retorna a soma dos valores absolutos de uma lista ou tuplo"""
+    sum = 0
+    for i in arg: 
+        if type(i) in [float, int]:
+            sum += abs(i)
+    return sum
+
+
 def produto_interno(left,right):
     """Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
     representando e vetores; devolve o produto interno desses vetores"""
@@ -237,6 +246,8 @@ def verifica_convergencia(matrix,const,sol,per):
     return True
 
 def retira_zeros_diagonal(matrix, const):
+    """Recebe um tuplo de tuplos representando as linhas de uma matriz, e um tuplo
+    de constantes"""
     resmat, resconst = list(), list()
     n = -1
     breaker = 0
@@ -252,5 +263,8 @@ def retira_zeros_diagonal(matrix, const):
     if breaker != len(matrix): return tuple(resmat), tuple(resconst)
     raise ValueError
     
-
-print(retira_zeros_diagonal(((0, 0, 0), (1, 0, 0), (0, 1, 0)), (1, 2, 3)))
+def eh_diagonal_dominante(matrix):
+    for line in matrix:
+        if line[matrix.index(line)] < aux_abssum_array(line) - abs(line[matrix.index(line)]): 
+            return False
+    return True
