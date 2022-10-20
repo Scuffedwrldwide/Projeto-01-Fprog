@@ -151,10 +151,9 @@ def obtem_partidos(info):
     parties = []
     for i in results:                           # por cada dicionário partido:votos
         aux_check_arg(i,dict)
-        parties.extend(list(i.keys()))          # adicionar os partidos encontrados à lista de assentos
-    for p in range(0, len(parties)):
-        aux_check_arg(parties[p], str)          # Nome de partido deve ser uma string
-    for p in parties.copy():
+        parties.extend(list(i.keys()))          # adicionar os partidos encontrados à lista de assentos         
+    for p in parties.copy():                    # Nome de partido deve ser uma string não vazia
+        if not isinstance(p, str) or p == '': raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Verificação dos argumentos referentes ao partido
         for l in range(parties.count(p)-1):     # Se existe mais do que uma instância de um partido i
             parties.remove(p)                   # removem-se as instâncias sobrantes
     parties.sort()
@@ -172,12 +171,13 @@ def obtem_resultado_eleicoes(info):
     if not isinstance(circles, list) or circles == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     dep = aux_obtem_partido_votos(info, 1)              # Lista correspondente aos deputados por circulo
     if not isinstance(dep, list) or dep == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+    for i in info.keys():
+        if not isinstance(i, str) or i == '': raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     seats = 0
     results = []
     par = 0                                             # Variável usada na ordenação de resultados
     
     for p in parties:
-        if not isinstance(p, str) or p == '': raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Verificação dos argumentos referentes ao partido
         count = 0
         seats = 0
         c = 0
@@ -278,7 +278,6 @@ def resolve_sistema(
     matrix, const = retira_zeros_diagonal(matrix, const)
     sol = [0 for i in range(len(const))]
     #k = 0       # Contador de iterações
-
     if not eh_diagonal_dominante(matrix):
         raise ValueError('resolve_sistema: matriz nao diagonal dominante')
     while verifica_convergencia(matrix,const,sol,acc) != True:
@@ -291,3 +290,6 @@ def resolve_sistema(
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], sol))/matrix[i][i]
             #k += 1
     return tuple(sol)
+
+info = {'': {'deputados': 48, 'votos': {'PS': 482606, 'PSD': 285522, 'IL': 93341, 'CH': 91889, 'PCP': 59995, 'BE': 55786, 'L': 28834, 'PAN': 23577, 'CDS': 19524}}, 'Santarem': {'deputados': 9, 'votos': {'PS': 89870, 'PSD': 58630, 'CH': 23813, 'PCP': 11854, 'BE': 10012}}, 'Porto': {'deputados': 40, 'votos': {'PS': 418869, 'PSD': 318343, 'IL': 50359, 'BE': 47118, 'CH': 42998, 'PCP': 32277, 'PAN': 16707, 'CDS': 14347, 'L': 11433}}} 
+print(obtem_resultado_eleicoes(info))
