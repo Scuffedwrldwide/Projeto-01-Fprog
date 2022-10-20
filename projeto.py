@@ -79,31 +79,32 @@ def aux_obtem_partido_votos(info, dep=0):
     """Dado um dicionário contendo os resultados de vários circlos eleitorais
     devolve uma lista de dicionários contendo a informação partido:votos
     ou, opcionalmente, a lista do número de deputados a serem eleitos por circulo"""
-    circles = list(info.values())                # Lista dos dicionários-resultado dos vários circulos
+    circles = list(info.values())               # Lista dos dicionários-resultado dos vários circulos
     results = []
     for c in circles:  
         aux_check_arg(c, dict)                        
-        if dep == 1:                             # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
-            results.append(c.get('deputados'))   # o dicionário deputados:'int'
-        else:                                    # Em cada resultado de um circulo eleitoral, encontrar 
-            results.append(c.get('votos'))       # o dicionário partido:votos
+        if dep == 1:                            # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
+            results.append(c.get('deputados'))  # o dicionário deputados:'int'
+        else:                                   # Em cada resultado de um circulo eleitoral, encontrar 
+            results.append(c.get('votos'))      # o dicionário partido:votos
     return results
 
 def aux_sorter(
     lst, par, index):
     """Compara e ordena arrays de uma lista com base num critério presente num dado index """
-    breaker = 0                                  # Failsafe contra IndexErrors
+    breaker = 0                                 # Failsafe contra IndexErrors
     for i in range(len(lst)):
-        aux_check_arg((lst[par-1])[index],int)   # Número de votos deve ser inteiro
-        aux_check_arg((lst[par])[index],int)
+        aux_check_arg((lst[par-1])[index],int)   
+        if not len(lst) <= par: aux_check_arg((lst[par])[index],int)
+        else: break                             # evita IndexErros no caso de só existir um partido
         if (lst[par-1])[index] < (lst[par])[index]:
                     lst.append(lst[par-1])
                     lst.remove(lst[par-1])
                     par = 1
-        elif par == len(lst) - 1:                # Evita que 'par' exceda o indice máximo da lista                 
+        elif par == len(lst) - 1:               # Evita que 'par' exceda o indice máximo da lista                 
             breaker = 1
         else:
-            par += 1                             # Caso não haja operação a efetuar, avança-se para o par seguinte
+            par += 1                            # Caso não haja operação a efetuar, avança-se para o par seguinte
     return (lst, breaker)
 
 def calcula_quocientes(votes, seats):        
@@ -125,7 +126,7 @@ def atribui_mandatos(votes, seats):
     contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção"""
     if not isinstance(seats, int) or seats <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-    quo = calcula_quocientes(votes, seats)      # necessária para garantir a correta atribuição em caso de empate
+    quo = calcula_quocientes(votes, seats)      
     parties = []
     for i in aux_sorter([(p,v) for p,v in votes.items()],1,1)[0]:
         if not isinstance(i[1],int) or i[1] <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
@@ -133,9 +134,9 @@ def atribui_mandatos(votes, seats):
     results = list(quo.values())                   
     place = list()
     for i in quo:
-        results.extend(results[0])              # adiciona à lista 'results' os valores obtidos pelo método de hondt
+        results.extend(results[0])              # Adiciona à lista 'results' os valores obtidos pelo método de hondt
         results.pop(0)
-    results.sort(reverse = True)                  # Ordena a lista por ordem decrescente de quocientes
+    results.sort(reverse = True)                # Ordena a lista por ordem decrescente de quocientes
     for i in range(0, len(results)):            # Compara cada quociente da lista 'results'
         for p in range(0, len(parties)):        # aos quocientes de cada partido segundo a lista 'quo'
             if results[i] in quo.get(parties[p]):
@@ -178,7 +179,7 @@ def obtem_resultado_eleicoes(info):
     par = 0                                             # Variável usada na ordenação de resultados
     
     for p in parties:
-        count = 0
+        votecount = 0
         seats = 0
         c = 0
         for r in circles:                               # A avaliação dos quocientes e dos votos é feita circulo a circulo
@@ -187,9 +188,9 @@ def obtem_resultado_eleicoes(info):
             seats += (atribui_mandatos(r,dep[c])).count(p)
             c += 1
             if r.get(p) is not None:                    # Evita TypeError exceptions caso o partido não exista no circulo a availar
-                count += int(r.get(p))
-        if count <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Um circulo não pode ter tido 0 votos
-        results.append((p,seats,count))
+                votecount += int(r.get(p))
+        if votecount <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Um circulo não pode ter tido 0 votos
+        results.append((p,seats,votecount))
     
     while par < (len(results) - 1):                     # Ordena os túplos do resultado, comparando pares iterativamente
         if (results[par])[1] == (results[par + 1])[1]:  # Caso haja empates de deputados
@@ -236,7 +237,7 @@ def verifica_convergencia(
     """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
     um tuplo de soluções e um numero real correspondente à percisão pretendida"""
     for line, c in zip(matrix, const): 
-        if abs(produto_interno(line,sol) - c) >= acc: return False
+        if abs(produto_interno(line,sol) - c) > acc: return False
     return True
 
 def retira_zeros_diagonal(matrix, const):
@@ -291,5 +292,5 @@ def resolve_sistema(
             #k += 1
     return tuple(sol)
 
-#info = {'': {'deputados': 48, 'votos': {'PS': 482606, 'PSD': 285522, 'IL': 93341, 'CH': 91889, 'PCP': 59995, 'BE': 55786, 'L': 28834, 'PAN': 23577, 'CDS': 19524}}, 'Santarem': {'deputados': 9, 'votos': {'PS': 89870, 'PSD': 58630, 'CH': 23813, 'PCP': 11854, 'BE': 10012}}, 'Porto': {'deputados': 40, 'votos': {'PS': 418869, 'PSD': 318343, 'IL': 50359, 'BE': 47118, 'CH': 42998, 'PCP': 32277, 'PAN': 16707, 'CDS': 14347, 'L': 11433}}} 
-#print(obtem_resultado_eleicoes(info))
+info = {'Santarem': {'deputados': 9, 'votos': {'PS': 89870, 'PS': 58630, 'PS': 23813, 'PS': 11854, 'PS': 10012}}} 
+print(obtem_resultado_eleicoes(info))
