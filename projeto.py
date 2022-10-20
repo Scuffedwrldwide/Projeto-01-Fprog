@@ -268,8 +268,8 @@ def resolve_sistema(
     um tuplo de constantes (float ou int) e uma constante correspondente à percisão"""
 
     if type(acc) not in [int, float] or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos')
-    if not isinstance(const, tuple) or not len(const) > 1: raise ValueError('resolve_sistema: argumentos invalidos') 
-    if not isinstance(matrix, tuple) or not len(matrix) > 1: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(const, tuple) or not len(const) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(matrix, tuple) or not len(matrix) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
     
     matrix, const = retira_zeros_diagonal(matrix, const)
     sol = [0 for i in range(len(const))]
