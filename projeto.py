@@ -132,7 +132,7 @@ def calcula_quocientes(votes, seats):
     return results
 
 def atribui_mandatos(votes, seats):
-    """Aceita um dicionário partidos : no de votos e devolve uma lista
+    """Aceita um dicionário partidos:n. de votos e devolve uma lista
     contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção"""
     quo = calcula_quocientes(aux_dict_sorter(votes), seats) # necessária para garantir a correta atribuição em caso de empate
@@ -252,6 +252,8 @@ def retira_zeros_diagonal(matrix, const):
 
     for l in range(0, len(matrix)):
             for n in range(0, len(matrix)):
+                if not isinstance(matrix[l], tuple): raise ValueError('resolve_sistema: argumentos invalidos')
+                if not type(matrix[l][l]) in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
                 if  matrix[l][l] == 0 and matrix[n][l] != 0 and matrix[l][n] != 0:
                     matrix[l], matrix[n] = matrix[n], matrix[l]
                     const[l], const[n] = const[n], const[l]
@@ -267,11 +269,30 @@ def eh_diagonal_dominante(matrix):
     return True
 
 def resolve_sistema(matrix,const,acc):
+    """Recebe um tuplo constituido por tuplos de números representando uma matriz, 
+    um tuplo de constantes (float ou int) e uma constante correspondente à percisão"""
+
+    if type(acc) not in [int, float] or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos')
+    if not isinstance(const, tuple) or not len(const) > 0: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(matrix, tuple) or not len(matrix) > 0: raise ValueError('resolve_sistema: argumentos invalidos') 
+    
+
     matrix, const = retira_zeros_diagonal(matrix, const)
     sol = [0 for i in range(len(const))]
+    k = 0 # Contador de iterações
+
     if not eh_diagonal_dominante(matrix):
         raise ValueError('resolve_sistema: matriz nao diagonal dominante')
-    while not verifica_convergencia(matrix,const,sol,acc):
-        break
-        
-print(retira_zeros_diagonal(((0, 1, 1), (1, 0, 0), (0, 1, 0)), (1, 2, 3)))
+    while verifica_convergencia(matrix,const,sol,acc) != True:
+        for i in range(0, len(sol)):
+            if len(matrix) != len(const) or len(const) == 0: raise ValueError('resolve_sistema: argumentos invalidos')
+            if len(matrix[i]) != len(matrix[0]) or len(matrix[i]) != len(const)  : raise ValueError('resolve_sistema: argumentos invalidos')
+            if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
+            sol[i] = sol[i]*k
+            sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], sol))/matrix[i][i]
+
+            k+=1
+    return tuple(sol)
+
+
+
