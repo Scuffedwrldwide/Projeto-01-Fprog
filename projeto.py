@@ -175,20 +175,20 @@ def obtem_resultado_eleicoes(info):
     results = []
     par = 0                                             # Variável usada na ordenação de resultados
     
-    for i in parties:
-        if not isinstance(i, str): raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Verificação dos argumentos referentes ao partido
+    for p in parties:
+        if not isinstance(p, str) or p == '': raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Verificação dos argumentos referentes ao partido
         count = 0
         seats = 0
         c = 0
         for r in circles:                               # A avaliação dos quocientes e dos votos é feita circulo a circulo
-            if (not isinstance(r, dict)) or r == {} or type(dep[c]) != int or dep[c] <= 0 or (isinstance(r.get(i), int) and r.get(i) <= 0): 
+            if (not isinstance(r, dict)) or r == {} or type(dep[c]) != int or dep[c] <= 0 or (isinstance(r.get(p), int) and r.get(p) <= 0): 
                 raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Um partido constante na lista não pode ter 0 votos
-            seats += (atribui_mandatos(r,dep[c])).count(i)
+            seats += (atribui_mandatos(r,dep[c])).count(p)
             c += 1
-            if r.get(i) is not None:                    # Evita TypeError exceptions caso o partido não exista no circulo a availar
-                count += int(r.get(i))
+            if r.get(p) is not None:                    # Evita TypeError exceptions caso o partido não exista no circulo a availar
+                count += int(r.get(p))
         if count <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Um circulo não pode ter tido 0 votos
-        results.append((i,seats,count))
+        results.append((p,seats,count))
     
     while par < (len(results) - 1):                     # Ordena os túplos do resultado, comparando pares iterativamente
         if (results[par])[1] == (results[par + 1])[1]:  # Caso haja empates de deputados
