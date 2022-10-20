@@ -51,11 +51,16 @@ def justifica_texto(cad, col):
         next = limpa_texto(cad)                                                # Variavel que guarda o texto restante     
         if len(cad) > col and lines == 1:                                      # Previne caso raro no qual uma unica linha resulta num output
             lines += 1                                                         # que excede a largura definida. eg. justifica_texto('123456 789', 6)
-        cad = []  
+        cad = [] 
         for i in range(lines-1):                                               # Itera sobre cada linha exceto a ultima
             cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     # Adiciona à lista a cadeia cortada e espaçada
             next = str(corta_texto(next,col)[1])                               # Prepara a cadeia inalterada para o proximo ciclo
-        cad.append(next.ljust(col,' '))                                        # A ultima linha de cada texto é unicamente justificada à esquerda
+        
+        if len(next) >= col:                                                   # Caso a ultíma linha exceda o comprimento pedido
+            cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     
+            next = str(corta_texto(next,col)[1])    
+        
+        cad.append(next.ljust(col,' '))                                        # A ultima porção de cada texto é unicamente justificada à esquerda
         return tuple(cad)
 
 ####################
@@ -159,32 +164,30 @@ def obtem_resultado_eleicoes(info):
     por sua vez contida em dicionários (Deputados, Votos), e devolve uma lista de tuplos
     com a relevante informação devidamente analizada (Partido, Deputados, Votos)"""
 
-    aux_check_arg(info,dict)
+    if not isinstance(info, dict) or info == {}: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     parties = obtem_partidos(info)                      # Lista alfabética dos partidos
-    aux_check_arg(parties,list)
+    if not isinstance(parties, list) or parties == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     circles = aux_obtem_partido_votos(info)             # Lista dos vários resultados por circulo
-    aux_check_arg(circles,list)
+    if not isinstance(circles, list) or circles == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     dep = aux_obtem_partido_votos(info, 1)              # Lista correspondente aos deputados por circulo
-    aux_check_arg(dep,list)
+    if not isinstance(dep, list) or dep == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     seats = 0
     results = []
     par = 0                                             # Variável usada na ordenação de resultados
     
     for i in parties:
-        aux_check_arg(i,str)                            # Verificação dos argumentos referentes ao partido
+        if not isinstance(i, str): raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Verificação dos argumentos referentes ao partido
         count = 0
         seats = 0
         c = 0
         for r in circles:                               # A avaliação dos quocientes e dos votos é feita circulo a circulo
-            if type(dep[c]) != int or dep[c] <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-            aux_check_arg(r,dict)
-            if type(r.get(i)) == int:
-                aux_check_arg(r.get(i),int)             # Um partido constante na lista não pode ter 0 votos
+            if (not isinstance(r, dict)) or r == {} or type(dep[c]) != int or dep[c] <= 0 or (isinstance(r.get(i), int) and r.get(i) <= 0): 
+                raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Um partido constante na lista não pode ter 0 votos
             seats += (atribui_mandatos(r,dep[c])).count(i)
             c += 1
             if r.get(i) is not None:                    # Evita TypeError exceptions caso o partido não exista no circulo a availar
                 count += int(r.get(i))
-        aux_check_arg(count,int)                        # Um circulo não pode ter tido 0 votos
+        if count <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Um circulo não pode ter tido 0 votos
         results.append((i,seats,count))
     
     while par < (len(results) - 1):                     # Ordena os túplos do resultado, comparando pares iterativamente
@@ -215,7 +218,8 @@ def aux_abssum_array(arg):
 
 def produto_interno(left,right):
     """Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
-    representando e vetores; devolve o produto interno desses vetores"""
+    representando e vetores; devolve um valor float correspondente 
+    ao produto interno desses vetores"""
     res = 0
     if len(left) != len(right): raise ValueError('resolve_sistema: argumentos invalidos')
     for i, n  in zip(left, right):
@@ -223,7 +227,7 @@ def produto_interno(left,right):
         if (type(i) not in [int, float]) or (type(n) not in [int, float]):
             raise ValueError('resolve_sistema: argumentos invalidos')
         res += i*n
-    return res
+    return float(res)
 
 def verifica_convergencia(
         matrix, const, sol, 
@@ -264,8 +268,8 @@ def resolve_sistema(
     um tuplo de constantes (float ou int) e uma constante correspondente à percisão"""
 
     if type(acc) not in [int, float] or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos')
-    if not isinstance(const, tuple) or not len(const) > 0: raise ValueError('resolve_sistema: argumentos invalidos') 
-    if not isinstance(matrix, tuple) or not len(matrix) > 0: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(const, tuple) or not len(const) > 1: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(matrix, tuple) or not len(matrix) > 1: raise ValueError('resolve_sistema: argumentos invalidos') 
     
     matrix, const = retira_zeros_diagonal(matrix, const)
     sol = [0 for i in range(len(const))]
@@ -276,7 +280,8 @@ def resolve_sistema(
     while verifica_convergencia(matrix,const,sol,acc) != True:
         for i in range(0, len(sol)):
             if len(matrix) != len(const) or len(const) == 0: raise ValueError('resolve_sistema: argumentos invalidos')
-            if len(matrix[i]) != len(matrix[0]) or len(matrix[i]) != len(const)  : raise ValueError('resolve_sistema: argumentos invalidos')
+            if len(matrix[i]) != len(matrix[0]) or len(matrix[i]) != len(const) or len(matrix[i]) != len(matrix):
+                raise ValueError('resolve_sistema: argumentos invalidos')
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
             sol[i] = sol[i]*k
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], sol))/matrix[i][i]
