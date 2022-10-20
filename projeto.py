@@ -246,7 +246,7 @@ def retira_zeros_diagonal(matrix, const):
 
     for l in range(0, len(matrix)):
             for n in range(0, len(matrix)):
-                if not isinstance(matrix[l], tuple): raise ValueError('resolve_sistema: argumentos invalidos')
+                if not isinstance(matrix[l], tuple) or matrix[l] == (): raise ValueError('resolve_sistema: argumentos invalidos')
                 if not type(matrix[l][l]) in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
                 if  matrix[l][l] == 0 and matrix[n][l] != 0 and matrix[l][n] != 0:
                     matrix[l], matrix[n] = matrix[n], matrix[l]
@@ -258,6 +258,9 @@ def eh_diagonal_dominante(matrix):
     """Recebe um tuplo de tuplos correspondente a uma matriz, verifica que o módulo do valor
     constante na diagonal é superior à soma dos módulos dos restantes """
     for line in matrix:
+        #for i in line:
+            #if not type(i) in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
+
         if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]):
             return False
     return True
@@ -288,5 +291,3 @@ def resolve_sistema(
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], sol))/matrix[i][i]
             #k += 1
     return tuple(sol)
-A4, c4 = ((2.0, -1.0, -1.0), (2.0, -9.0, 7.0), (-2.0, 5.0, -9.0)), (-8.0, 8.0, -6.0)
-print(resolve_sistema(A4, c4, 1e-20))
