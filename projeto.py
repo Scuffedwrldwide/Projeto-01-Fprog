@@ -274,7 +274,7 @@ def resolve_sistema(
     
     matrix, const = retira_zeros_diagonal(matrix, const)
     sol = [0 for i in range(len(const))]
-    k = 0       # Contador de iterações
+    #k = 0       # Contador de iterações
 
     if not eh_diagonal_dominante(matrix):
         raise ValueError('resolve_sistema: matriz nao diagonal dominante')
@@ -284,7 +284,9 @@ def resolve_sistema(
             if len(matrix[i]) != len(matrix[0]) or len(matrix[i]) != len(const) or len(matrix[i]) != len(matrix):
                 raise ValueError('resolve_sistema: argumentos invalidos')
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
-            sol[i] = sol[i]*k
+            #sol[i] = sol[i]*k
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], sol))/matrix[i][i]
-            k += 1
+            #k += 1
     return tuple(sol)
+A4, c4 = ((2.0, -1.0, -1.0), (2.0, -9.0, 7.0), (-2.0, 5.0, -9.0)), (-8.0, 8.0, -6.0)
+print(resolve_sistema(A4, c4, 1e-20))
