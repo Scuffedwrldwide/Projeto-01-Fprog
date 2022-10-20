@@ -6,8 +6,8 @@ def limpa_texto(cad):
     """Recebe cadeia de caracteres (cad) e devolve uma cadeia correspondente à
     remoção de caracteres ASCII brancos, substituidos pelo espaço (0x20)
     eliminando ainda sequências contínuas de espaços"""
-    cad = cad.strip(' ')               # Remove espaços a cada lado do input
-    toreplace = {0x09 : ' ',             # Devolve a cadeia fornecida trocando os caracteres definidos  pelo espaço ' '
+    cad = cad.strip(' ')                # Remove espaços a cada lado do input
+    toreplace = {0x09 : ' ',            # Devolve a cadeia fornecida trocando os caracteres definidos  pelo espaço ' '
                 0x0a : ' ', 
                 0x0b : ' ',
                 0x0c : ' ',
@@ -15,7 +15,7 @@ def limpa_texto(cad):
                 }            
     cad = cad.translate(toreplace)
     while int(cad.find('  ')) >= 0:
-        cad = cad.replace('  ',' ')    # Enquanto existirem sequencias de 2 ou mais espaços, substitui as sequências de 2 espaços por 1
+        cad = cad.replace('  ',' ')     # Enquanto existirem sequencias de 2 ou mais espaços, substitui as sequências de 2 espaços por 1
     return cad.strip(' ') 
 
 def corta_texto(cad, col):
@@ -35,7 +35,7 @@ def insere_espacos(cad, col):
         count = 1                                              # Número inicial de espaços
         while len(cad) <= col:
             cad = cad.replace(' '*count, ' '*(count+1))        # Aumenta todas as instâncias de espaços (pode resultar em len(cad)>col)
-            count += 1                                          # Atualiza a dimensão atual das sequências de espaços
+            count += 1                                         # Atualiza a dimensão atual das sequências de espaços
         while len(cad) > col:
             cad = cad.replace(' '*count, ' '*(count-1))                   # Reduz todas as sequências em um espaço
             cad = cad.replace(' '*(count-1), ' '*(count), col-len(cad))   # permitindo que se aumente cada uma das sequencias por 1 espaço   
@@ -217,6 +217,7 @@ def produto_interno(left,right):
     """Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
     representando e vetores; devolve o produto interno desses vetores"""
     res = 0
+    if len(left) != len(right): raise ValueError('resolve_sistema: argumentos invalidos')
     for i, n  in zip(left, right):
     ### DUVIDA: TORNAR VERIFICAÇÃO MAIS COMPACTA??###
         if (type(i) not in [int, float]) or (type(n) not in [int, float]):
