@@ -121,13 +121,14 @@ def calcula_quocientes(votes, seats):
     return results
 
 def atribui_mandatos(votes, seats):
-    """Aceita um dicionário partidos:n. de votos e devolve uma lista
+    """Aceita um dicionário partidos:n. de votos e um inteiro e devolve uma lista
     contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção"""
+    if not isinstance(seats, int) or seats <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     quo = calcula_quocientes(votes, seats)      # necessária para garantir a correta atribuição em caso de empate
     parties = []
     for i in aux_sorter([(p,v) for p,v in votes.items()],1,1)[0]:
-        if type(i[1]) == str or i[1] <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+        if not isinstance(i[1],int) or i[1] <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
         parties.insert(0, i[0])                 # Ordem crescente por votos de uma lista de tuplos partido:votos
     results = list(quo.values())                   
     place = list()
