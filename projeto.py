@@ -17,7 +17,7 @@ def limpa_texto(cad):
         cad = cad.replace('  ',' ')    # Enquanto existirem sequencias de 2 ou mais espaços, substitui as sequências de 2 espaços por 1
     return cad.strip(' ') 
 
-def corta_texto(cad,col):
+def corta_texto(cad, col):
     """Limita cadeias de caracteres de acordo com a largura fornecida.
     Devolve duas cadeias, a cadeia cortada e a sobrante cadeia inalterada"""
     cut = cad[:col]  
@@ -34,7 +34,7 @@ def insere_espacos(cad, col):
         count = 1                                              # Número inicial de espaços
         while len(cad) <= col:
             cad = cad.replace(' '*count, ' '*(count+1))        # Aumenta todas as instâncias de espaços (pode resultar em len(cad)>col)
-            count +=1                                          # Atualiza a dimensão atual das sequências de espaços
+            count += 1                                          # Atualiza a dimensão atual das sequências de espaços
         while len(cad) > col:
             cad = cad.replace(' '*count, ' '*(count-1))                   # Reduz todas as sequências em um espaço
             cad = cad.replace(' '*(count-1), ' '*(count), col-len(cad))   # permitindo que se aumente cada uma das sequencias por 1 espaço   
@@ -43,7 +43,7 @@ def insere_espacos(cad, col):
 def justifica_texto(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna.
     Aceita tuplos."""
-    if type(cad) != str or type(col) != int or col < 1 or ((not col>= cad.find(' ')> -1) and len(cad)>col) or len(cad) == 0:
+    if type(cad) != str or type(col) != int or col < 1 or ((not col >= cad.find(' ') > -1) and len(cad)>col) or len(cad) == 0:
         raise ValueError('justifica_texto: argumentos invalidos')              
     else:
         lines = len(cad)//col                                                  # Prevê o número de linhas necessárias para a justificação
@@ -83,8 +83,9 @@ def aux_obtem_partido_votos(info, dep=0):
             results.append(c.get('votos'))       # o dicionário partido:votos
     return results
 
-def aux_sorter(lst, par, index):
-    """Compara e ordena arrays de uma lista com base num critério arbitrário"""
+def aux_sorter(
+    lst, par, index):
+    """Compara e ordena arrays de uma lista com base num critério presente num dado index """
     breaker = 0                                  # Failsafe contra IndexErrors
     for i in range(len(lst)):
         aux_check_arg((lst[par-1])[index],int)   # Número de votos deve ser inteiro
@@ -117,17 +118,17 @@ def atribui_mandatos(votes, seats):
     """Aceita um dicionário partidos:n. de votos e devolve uma lista
     contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção"""
-    quo = calcula_quocientes(votes, seats)     # necessária para garantir a correta atribuição em caso de empate
+    quo = calcula_quocientes(votes, seats)      # necessária para garantir a correta atribuição em caso de empate
     parties = []
     for i in aux_sorter([(p,v) for p,v in votes.items()],1,1)[0]:
-        if type(i[1]) == str or i[1]<= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-        parties.insert(0, i[0]) # Ordem crescente por votos de uma lista de tuplos partido:votos
+        if type(i[1]) == str or i[1] <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+        parties.insert(0, i[0])                 # Ordem crescente por votos de uma lista de tuplos partido:votos
     results = list(quo.values())                   
     place = list()
     for i in quo:
         results.extend(results[0])              # adiciona à lista 'results' os valores obtidos pelo método de hondt
         results.pop(0)
-    results.sort(reverse=True)                  # Ordena a lista por ordem decrescente de quocientes
+    results.sort(reverse = True)                  # Ordena a lista por ordem decrescente de quocientes
     for i in range(0, len(results)):            # Compara cada quociente da lista 'results'
         for p in range(0, len(parties)):        # aos quocientes de cada partido segundo a lista 'quo'
             if results[i] in quo.get(parties[p]):
@@ -180,7 +181,7 @@ def obtem_resultado_eleicoes(info):
                 aux_check_arg(r.get(i),int)             # Um partido constante na lista não pode ter 0 votos
             seats += (atribui_mandatos(r,dep[c])).count(i)
             c += 1
-            if r.get(i) != None:                        # Evita TypeError exceptions caso o partido não exista no circulo a availar
+            if r.get(i) is not None:                    # Evita TypeError exceptions caso o partido não exista no circulo a availar
                 count += int(r.get(i))
         aux_check_arg(count,int)                        # Um circulo não pode ter tido 0 votos
         results.append((i,seats,count))
@@ -191,7 +192,7 @@ def obtem_resultado_eleicoes(info):
                 break
             results = aux_sorter(results, par, 2)[0]
         elif (results[par])[1] > (results[par + 1])[1]: # Caso o par comparado esteja devidamente ordenado
-            par +=1                                     # compara-se o par seguinte
+            par += 1                                    # compara-se o par seguinte
         else:
             if (aux_sorter(results, par, 1))[1] == 1:
                 break
@@ -211,7 +212,6 @@ def aux_abssum_array(arg):
             sum += abs(i)
     return sum
 
-
 def produto_interno(left,right):
     """Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
     representando e vetores; devolve o produto interno desses vetores"""
@@ -223,7 +223,9 @@ def produto_interno(left,right):
         res += i*n
     return res
 
-def verifica_convergencia(matrix,const,sol,acc):
+def verifica_convergencia(
+        matrix, const, sol, 
+        acc):
     """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
     um tuplo de soluções e um numero real correspondente à percisão pretendida"""
     for line, c in zip(matrix, const): 
@@ -249,11 +251,13 @@ def eh_diagonal_dominante(matrix):
     """Recebe um tuplo de tuplos correspondente a uma matriz, verifica que o módulo do valor
     constante na diagonal é superior à soma dos módulos dos restantes """
     for line in matrix:
-        if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]): 
+        if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]):
             return False
     return True
 
-def resolve_sistema(matrix,const,acc):
+def resolve_sistema(
+        matrix, const, 
+        acc):
     """Recebe um tuplo constituido por tuplos de números representando uma matriz, 
     um tuplo de constantes (float ou int) e uma constante correspondente à percisão"""
 
@@ -261,10 +265,9 @@ def resolve_sistema(matrix,const,acc):
     if not isinstance(const, tuple) or not len(const) > 0: raise ValueError('resolve_sistema: argumentos invalidos') 
     if not isinstance(matrix, tuple) or not len(matrix) > 0: raise ValueError('resolve_sistema: argumentos invalidos') 
     
-
     matrix, const = retira_zeros_diagonal(matrix, const)
     sol = [0 for i in range(len(const))]
-    k = 0 # Contador de iterações
+    k = 0       # Contador de iterações
 
     if not eh_diagonal_dominante(matrix):
         raise ValueError('resolve_sistema: matriz nao diagonal dominante')
@@ -275,10 +278,5 @@ def resolve_sistema(matrix,const,acc):
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
             sol[i] = sol[i]*k
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], sol))/matrix[i][i]
-
-            k+=1
+            k += 1
     return tuple(sol)
-
-
-
-print(type(float))
