@@ -47,20 +47,20 @@ def justifica_texto(cad, col):
     if type(cad) != str or type(col) != int or col < 1 or ((not col >= cad.find(' ') > -1) and len(cad)>col) or len(cad) == 0:
         raise ValueError('justifica_texto: argumentos invalidos')              
     else:
-        lines = len(cad)//col                                                  # Prevê o número de linhas necessárias para a justificação
-        next = limpa_texto(cad)                                                # Variavel que guarda o texto restante     
-        if len(cad) > col and lines == 1:                                      # Previne caso raro no qual uma unica linha resulta num output
-            lines += 1                                                         # que excede a largura definida. eg. justifica_texto('123456 789', 6)
+        lines = len(cad)//col                                                   # Prevê o número de linhas necessárias para a justificação
+        next = limpa_texto(cad)                                                 # Variavel que guarda o texto restante     
+        if len(cad) > col and lines == 1:                                       # Previne caso raro no qual uma unica linha resulta num output
+            lines += 1                                                          # que excede a largura definida. eg. justifica_texto('123456 789', 6)
         cad = [] 
-        for i in range(lines-1):                                               # Itera sobre cada linha exceto a ultima
-            cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     # Adiciona à lista a cadeia cortada e espaçada
-            next = str(corta_texto(next,col)[1])                               # Prepara a cadeia inalterada para o proximo ciclo
+        for i in range(lines-1):                                                # Itera sobre cada linha exceto a ultima
+            cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))      # Adiciona à lista a cadeia cortada e espaçada
+            next = str(corta_texto(next,col)[1])                                # Prepara a cadeia inalterada para o proximo ciclo
         
-        if len(next) >= col:                                                   # Caso a ultíma linha exceda o comprimento pedido
+        if len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
             cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     
             next = str(corta_texto(next,col)[1])    
         
-        cad.append(next.ljust(col,' '))                                        # A ultima porção de cada texto é unicamente justificada à esquerda
+        cad.append(next.ljust(col,' '))                                         # A ultima porção de cada texto é unicamente justificada à esquerda
         return tuple(cad)
 
 ####################
@@ -291,5 +291,5 @@ def resolve_sistema(
             #k += 1
     return tuple(sol)
 
-info = {'': {'deputados': 48, 'votos': {'PS': 482606, 'PSD': 285522, 'IL': 93341, 'CH': 91889, 'PCP': 59995, 'BE': 55786, 'L': 28834, 'PAN': 23577, 'CDS': 19524}}, 'Santarem': {'deputados': 9, 'votos': {'PS': 89870, 'PSD': 58630, 'CH': 23813, 'PCP': 11854, 'BE': 10012}}, 'Porto': {'deputados': 40, 'votos': {'PS': 418869, 'PSD': 318343, 'IL': 50359, 'BE': 47118, 'CH': 42998, 'PCP': 32277, 'PAN': 16707, 'CDS': 14347, 'L': 11433}}} 
-print(obtem_resultado_eleicoes(info))
+#info = {'': {'deputados': 48, 'votos': {'PS': 482606, 'PSD': 285522, 'IL': 93341, 'CH': 91889, 'PCP': 59995, 'BE': 55786, 'L': 28834, 'PAN': 23577, 'CDS': 19524}}, 'Santarem': {'deputados': 9, 'votos': {'PS': 89870, 'PSD': 58630, 'CH': 23813, 'PCP': 11854, 'BE': 10012}}, 'Porto': {'deputados': 40, 'votos': {'PS': 418869, 'PSD': 318343, 'IL': 50359, 'BE': 47118, 'CH': 42998, 'PCP': 32277, 'PAN': 16707, 'CDS': 14347, 'L': 11433}}} 
+#print(obtem_resultado_eleicoes(info))
