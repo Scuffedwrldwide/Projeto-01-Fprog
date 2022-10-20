@@ -7,13 +7,14 @@ def limpa_texto(cad):
     remoção de caracteres ASCII brancos, substituidos pelo espaço (0x20)
     eliminando ainda sequências contínuas de espaços"""
     cad = cad.strip(' ')               # Remove espaços a cada lado do input
-    cad = cad.replace('\t',' ')        # Devolve a cadeia fornecida trocando os caracteres definidos  pelo espaço ' '
-    cad = cad.replace('\n',' ')
-    cad = cad.replace('\v',' ')
-    cad = cad.replace('\f',' ')
-    cad = cad.replace('\r',' ')
-    cad = cad.replace('  ',' ')
-    while int(cad.find('  ')) > 0:
+    toreplace = {0x09 : ' ',             # Devolve a cadeia fornecida trocando os caracteres definidos  pelo espaço ' '
+                0x0a : ' ', 
+                0x0b : ' ',
+                0x0c : ' ',
+                0x0d : ' ',
+                }            
+    cad = cad.translate(toreplace)
+    while int(cad.find('  ')) >= 0:
         cad = cad.replace('  ',' ')    # Enquanto existirem sequencias de 2 ou mais espaços, substitui as sequências de 2 espaços por 1
     return cad.strip(' ') 
 
