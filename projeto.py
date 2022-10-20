@@ -62,31 +62,12 @@ def justifica_texto(cad, col):
 ####################
 
 def aux_check_arg(arg,typ):
-
+    """Recebe um argumento de qualquer tipo, bem como o tipo (type) experado,
+    efetua a verificação de argumentos, não retornando qualquer valor"""
     if (type(arg) == dict and arg == {}) or (type(arg) == list and arg == ()) or (type(arg) == int and arg < 0) or (type(arg) == tuple and arg ==()):
         raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     if type(arg) != typ:
         raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-
-def aux_dict_sorter(unsort):
-    """Recebe um dicionário arbitráriamente ordenado e devolve 
-    um dicionário ordenado segundo os valores presentes, em ordem crescente"""
-    count = 0                                # Contador de vezes em que nenhuma operação é necessária
-    unsort = list(unsort.items())            # Lista contendo tuplos ('partido','votos')
-    sort = {}
-    for i in range(0, len(unsort)):
-        if type(unsort[i][1]) == str or unsort[i][1]<= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-        aux_check_arg(unsort[i][1], int)     # Numero de votos de um partido constante na lista não pode ser 0s
-    while count < len(unsort):               # Se toda a lista for avaliada sem operações, considera-se ordenada               
-        if count+1 < len(unsort) and (unsort[count])[1] > (unsort[count+1])[1]: # Compara o valor númerico presente num dado
-            unsort.append(unsort[count])                                        # tuplo com o valor numérico do tuplo seguinte
-            unsort.remove(unsort[count])
-            count = 0                        # Os tuplos de valores maiores são sucessivamente 'transportados' para o fim da lista
-        else:
-            count += 1
-    for i in range(len(unsort)):             # Converte a lista de tuplos num dicionário
-        sort.update({(unsort[i])[0]:(unsort[i])[1]})
-    return sort
 
 def aux_obtem_partido_votos(info, dep=0):
     """Dado um dicionário contendo os resultados de vários circlos eleitorais
@@ -103,7 +84,7 @@ def aux_obtem_partido_votos(info, dep=0):
     return results
 
 def aux_sorter(lst, par, index):
-    """Compara e ordena tuplos de uma lista com base num critério arbitrário"""
+    """Compara e ordena arrays de uma lista com base num critério arbitrário"""
     breaker = 0                                  # Failsafe contra IndexErrors
     for i in range(len(lst)):
         aux_check_arg((lst[par-1])[index],int)   # Número de votos deve ser inteiro
@@ -126,7 +107,8 @@ def calcula_quocientes(votes, seats):
     parties = list(votes.keys())
     for i in range(0,len(parties)):          # Itera sobre todas as entradas ou "partidos"
         quo = list()                         # Cria uma lista-destino para os quocientes a serem calculados
-        for d in range(1,seats+1):           
+        for d in range(1,seats+1):  
+            if not isinstance(votes[parties[i]], int): raise ValueError('obtem_resultado_eleicoes: argumento invalido')    
             quo.append(votes[parties[i]]/d)  # Adiciona o quociente dos votos do partido a ser trabalhado ao fim da lista
         results.update({parties[i]: quo})    # Atualiza a entrada do respetivo partido com os resultados apurados
     return results
@@ -135,18 +117,21 @@ def atribui_mandatos(votes, seats):
     """Aceita um dicionário partidos:n. de votos e devolve uma lista
     contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção"""
-    quo = calcula_quocientes(aux_dict_sorter(votes), seats) # necessária para garantir a correta atribuição em caso de empate
-    parties = list(quo.keys())
-    results = list(quo.values())                           
+    quo = calcula_quocientes(votes, seats)     # necessária para garantir a correta atribuição em caso de empate
+    parties = []
+    for i in aux_sorter([(p,v) for p,v in votes.items()],1,1)[0]:
+        if type(i[1]) == str or i[1]<= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+        parties.insert(0, i[0]) # Ordem crescente por votos de uma lista de tuplos partido:votos
+    results = list(quo.values())                   
     place = list()
     for i in quo:
         results.extend(results[0])              # adiciona à lista 'results' os valores obtidos pelo método de hondt
         results.pop(0)
     results.sort(reverse=True)                  # Ordena a lista por ordem decrescente de quocientes
     for i in range(0, len(results)):            # Compara cada quociente da lista 'results'
-        for p in parties:                       # aos quocientes de cada partido segundo a lista 'quo'
-            if results[i] in quo.get(p):
-                place.append(p)                 # Adiciona os partidos à lista place por ordem de eleição de deputados
+        for p in range(0, len(parties)):        # aos quocientes de cada partido segundo a lista 'quo'
+            if results[i] in quo.get(parties[p]):
+                place.append(parties[p])        # Adiciona os partidos à lista place por ordem de eleição de deputados
     return place[0:seats]                       # Limita a lista ao número de deputados pedido
 
 def obtem_partidos(info):
@@ -296,3 +281,4 @@ def resolve_sistema(matrix,const,acc):
 
 
 
+print(type(float))
