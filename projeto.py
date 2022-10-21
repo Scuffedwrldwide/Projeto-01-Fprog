@@ -236,7 +236,8 @@ def verifica_convergencia(
         acc):
     """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
     um tuplo de soluções e um numero real correspondente à percisão pretendida"""
-    for line, c in zip(matrix, const): 
+    for line, c in zip(matrix, const):
+        if c == 0: raise ValueError('resolve_sistema: argumentos invalidos')    ###Possible 120/127 fix###
         if abs(produto_interno(line,sol) - c) > acc: return False
     return True
 
@@ -259,9 +260,6 @@ def eh_diagonal_dominante(matrix):
     """Recebe um tuplo de tuplos correspondente a uma matriz, verifica que o módulo do valor
     constante na diagonal é superior à soma dos módulos dos restantes """
     for line in matrix:
-        #for i in line:
-            #if not type(i) in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
-
         if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]):
             return False
     return True
@@ -272,25 +270,23 @@ def resolve_sistema(
     """Recebe um tuplo constituido por tuplos de números representando uma matriz, 
     um tuplo de constantes (float ou int) e uma constante correspondente à percisão"""
 
-    if type(acc) not in [int, float] or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos')
+    if type(acc) != float or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos') #
     if not isinstance(const, tuple) or not len(const) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
     if not isinstance(matrix, tuple) or not len(matrix) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
-    
+    if len(matrix) != len(const) or len(const) == 0: raise ValueError('resolve_sistema: argumentos invalidos')
+
     matrix, const = retira_zeros_diagonal(matrix, const)
     sol = [0 for i in range(len(const))]
-    #k = 0       # Contador de iterações
     if not eh_diagonal_dominante(matrix):
         raise ValueError('resolve_sistema: matriz nao diagonal dominante')
-    while verifica_convergencia(matrix,const,sol,acc) != True:
+    while not verifica_convergencia(matrix,const,sol,acc):
+        prevsol = sol.copy()
         for i in range(0, len(sol)):
-            if len(matrix) != len(const) or len(const) == 0: raise ValueError('resolve_sistema: argumentos invalidos')
             if len(matrix[i]) != len(matrix[0]) or len(matrix[i]) != len(const) or len(matrix[i]) != len(matrix):
                 raise ValueError('resolve_sistema: argumentos invalidos')
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
-            #sol[i] = sol[i]*k
-            sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], sol))/matrix[i][i]
-            #k += 1
+            sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], prevsol))/matrix[i][i]
     return tuple(sol)
 
-info = {'Santarem': {'deputados': 9, 'votos': {'PS': 89870, 'PS': 58630, 'PS': 23813, 'PS': 11854, 'PS': 10012}}} 
-print(obtem_resultado_eleicoes(info))
+A4, c4 = ((2, -1, -1), (2, -9, 7), (-2, 5, -9)), (-8, 8, -6)
+print(resolve_sistema(A4, c4, 1e-20))
