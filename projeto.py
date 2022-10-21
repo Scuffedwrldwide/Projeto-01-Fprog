@@ -287,6 +287,3 @@ def resolve_sistema(
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], prevsol))/matrix[i][i]
     return tuple(sol)
-
-A4, c4 = ((2, -1, -1), (2, -9, 7), (-2, 5, -9)), (-8, 8, -6)
-print(resolve_sistema(A4, c4, 1e-20))
