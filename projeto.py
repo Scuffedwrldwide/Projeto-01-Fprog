@@ -82,7 +82,7 @@ def aux_obtem_partido_votos(info, dep=0):
     circles = list(info.values())               # Lista dos dicionários-resultado dos vários circulos
     results = []
     for c in circles:  
-        aux_check_arg(c, dict)                        
+        if (not isinstance(c, dict)) or c == {} or len(c) != 2: raise ValueError('obtem_resultado_eleicoes: argumento invalido')                     
         if dep == 1:                            # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
             results.append(c.get('deputados'))  # o dicionário deputados:'int'
         else:                                   # Em cada resultado de um circulo eleitoral, encontrar 
