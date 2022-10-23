@@ -22,7 +22,7 @@ def corta_texto(cad, col):
     """Limita cadeias de caracteres de acordo com a largura fornecida.
     Devolve duas cadeias, a cadeia cortada e a sobrante cadeia inalterada"""
     cut = cad[:col]  
-    if len(cad) > col and cut.rfind(' ') != -1:                # condição evita funcionalidade indesejável do método .rfind
+    if len(cad) > col and cut.rfind(' ') != -1 and cad[col] != ' ':                # condição evita funcionalidade indesejável do método .rfind
         cut = cut[:cut.rfind(' ')].strip(' ')                  # Limita a cadeia cortada até ao ultimo espaço eliminando palavras incompletas
     uncut = cad[len(cut):].strip(' ')                          # A restante cadeia começa a após o ultimo caractér presente na cadeia cortada
     return cut, uncut      
@@ -53,19 +53,18 @@ def justifica_texto(cad, col):
         lines += 1                                                          # que excede a largura definida. eg. justifica_texto('123456 789', 6)
     cad = [] 
     for i in range(lines-1):                                                # Itera sobre cada linha exceto a ultima
-        if len(corta_texto(next,col)[0]) != col:
-            cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))  # Adiciona à lista a cadeia cortada e espaçada
-            next = str(corta_texto(next,col)[1])                            # Prepara a cadeia inalterada para o proximo ciclo
+        done, next = corta_texto(next,col)                                  # Define a cadeia a ser adicionada e a sobrante
+        if len(done) != col:
+            cad.append(str(insere_espacos(done, col)))                      # Adiciona à lista a cadeia cortada e espaçada                            # Prepara a cadeia inalterada para o proximo ciclo
         else:                                                               ### POTENTIAL 42 44 FIX
-            cad.append(str(corta_texto(next,col)[0]))                       ###
-            next = str(corta_texto(next,col)[1])                            ###
-        
+            cad.append(done)                                                 
     if len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
         cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     
         next = str(corta_texto(next,col)[1])    
-    
     cad.append(next.ljust(col,' '))                                         # A ultima porção de cada texto é unicamente justificada à esquerda
     return tuple(cad)
+
+print(justifica_texto('Ipsum dolore consectetur sed dolorem. Dolor sed eius consectetur consectetur dolore modi consectetur. Voluptatem sit velit amet dolor neque est. Quiquia porro tempora sed dolore adipisci dolore. Velit dolore numquam dolore dolor labore.', 20))
 
 ####################
 #2. Método de Hondt#
@@ -241,8 +240,8 @@ def verifica_convergencia(
     """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
     um tuplo de soluções e um numero real correspondente à percisão pretendida"""
     for line, c in zip(matrix, const):
-        if aux_abssum_array(sol) != 0 and produto_interno(line,sol) == 0 and c != 0: #possivel caso de sistema impossívek
-            raise ValueError('resolve_sistema: argumentos invalidos')    ###Possible 120/127 fix###
+        if aux_abssum_array(sol) != 0 and produto_interno(line,sol) == 0 and c != 0: #Salvaguarda contra o caso de sistema impossível
+            raise ValueError('resolve_sistema: argumentos invalidos')   
         if abs(produto_interno(line,sol) - c) > acc: return False
     return True
 
