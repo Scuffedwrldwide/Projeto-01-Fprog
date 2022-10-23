@@ -33,7 +33,7 @@ def insere_espacos(cad, col):
         return cad.ljust(col,' ')                                     
     else:
         count = 1                                              # Número inicial de espaços
-        while len(cad) <= col:
+        while len(cad) < col:                                  ##POTENTIAL 42 44 FIX
             cad = cad.replace(' '*count, ' '*(count+1))        # Aumenta todas as instâncias de espaços (pode resultar em len(cad)>col)
             count += 1                                         # Atualiza a dimensão atual das sequências de espaços
         while len(cad) > col:
@@ -46,22 +46,26 @@ def justifica_texto(cad, col):
     Aceita tuplos."""
     if type(cad) != str or type(col) != int or col < 1 or ((not col >= cad.find(' ') > -1) and len(cad)>col) or len(cad) == 0:
         raise ValueError('justifica_texto: argumentos invalidos')              
-    else:
-        lines = len(cad)//col                                                   # Prevê o número de linhas necessárias para a justificação
-        next = limpa_texto(cad)                                                 # Variavel que guarda o texto restante     
-        if len(cad) > col and lines == 1:                                       # Previne caso raro no qual uma unica linha resulta num output
-            lines += 1                                                          # que excede a largura definida. eg. justifica_texto('123456 789', 6)
-        cad = [] 
-        for i in range(lines-1):                                                # Itera sobre cada linha exceto a ultima
-            cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))      # Adiciona à lista a cadeia cortada e espaçada
-            next = str(corta_texto(next,col)[1])                                # Prepara a cadeia inalterada para o proximo ciclo
+
+    lines = len(cad)//col                                                   # Prevê o número de linhas necessárias para a justificação
+    next = limpa_texto(cad)                                                 # Variavel que guarda o texto restante     
+    if len(cad) > col and lines == 1:                                       # Previne caso raro no qual uma unica linha resulta num output
+        lines += 1                                                          # que excede a largura definida. eg. justifica_texto('123456 789', 6)
+    cad = [] 
+    for i in range(lines-1):                                                # Itera sobre cada linha exceto a ultima
+        if len(corta_texto(next,col)[0]) != col:
+            cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))  # Adiciona à lista a cadeia cortada e espaçada
+            next = str(corta_texto(next,col)[1])                            # Prepara a cadeia inalterada para o proximo ciclo
+        else:                                                               ### POTENTIAL 42 44 FIX
+            cad.append(str(corta_texto(next,col)[0]))                       ###
+            next = str(corta_texto(next,col)[1])                            ###
         
-        if len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
-            cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     
-            next = str(corta_texto(next,col)[1])    
-        
-        cad.append(next.ljust(col,' '))                                         # A ultima porção de cada texto é unicamente justificada à esquerda
-        return tuple(cad)
+    if len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
+        cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     
+        next = str(corta_texto(next,col)[1])    
+    
+    cad.append(next.ljust(col,' '))                                         # A ultima porção de cada texto é unicamente justificada à esquerda
+    return tuple(cad)
 
 ####################
 #2. Método de Hondt#
@@ -237,7 +241,8 @@ def verifica_convergencia(
     """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
     um tuplo de soluções e um numero real correspondente à percisão pretendida"""
     for line, c in zip(matrix, const):
-        if c == 0: raise ValueError('resolve_sistema: argumentos invalidos')    ###Possible 120/127 fix###
+        if aux_abssum_array(sol) != 0 and produto_interno(line,sol) == 0 and c != 0: #possivel caso de sistema impossívek
+            raise ValueError('resolve_sistema: argumentos invalidos')    ###Possible 120/127 fix###
         if abs(produto_interno(line,sol) - c) > acc: return False
     return True
 
@@ -287,3 +292,6 @@ def resolve_sistema(
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], prevsol))/matrix[i][i]
     return tuple(sol)
+
+A4, c4 = ((2.0, -1.0, -1.0), (2.0, -9.0, 7.0), (0, 0, 0.5)), (-8.0,0, 5)
+print(resolve_sistema(A4, c4, 1e-20))
