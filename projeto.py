@@ -22,24 +22,24 @@ def corta_texto(cad, col):
     """Limita cadeias de caracteres de acordo com a largura fornecida.
     Devolve duas cadeias, a cadeia cortada e a sobrante cadeia inalterada"""
     cut = cad[:col]  
-    if len(cad) > col and cut.rfind(' ') != -1 and cad[col] != ' ':                # condição evita funcionalidade indesejável do método .rfind
-        cut = cut[:cut.rfind(' ')].strip(' ')                  # Limita a cadeia cortada até ao ultimo espaço eliminando palavras incompletas
-    uncut = cad[len(cut):].strip(' ')                          # A restante cadeia começa a após o ultimo caractér presente na cadeia cortada
+    if len(cad) > col and cut.rfind(' ') != -1 and cad[col] != ' ': # Garante a manutenção de palavras completas, contando com o contexto da cadeia
+        cut = cut[:cut.rfind(' ')].strip(' ')                       # Limita a cadeia cortada até ao ultimo espaço eliminando palavras incompletas
+    uncut = cad[len(cut):].strip(' ')                               # A restante cadeia começa a após o ultimo caractér presente na cadeia cortada
     return cut, uncut      
 
 def insere_espacos(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna"""
-    if cad.find(' ') == -1:                                    # Não encontrar espaços implica a existência de uma só palavra 
+    if cad.find(' ') == -1:                                 # Não encontrar espaços implica a existência de uma só palavra 
         return cad.ljust(col,' ')                                     
     else:
-        count = 1                                              # Número inicial de espaços
-        while len(cad) < col:                                  ##POTENTIAL 42 44 FIX
-            cad = cad.replace(' '*count, ' '*(count+1))        # Aumenta todas as instâncias de espaços (pode resultar em len(cad)>col)
-            count += 1                                         # Atualiza a dimensão atual das sequências de espaços
+        count = 1                                           # Número inicial de espaços
+        while len(cad) < col:                               
+            cad = cad.replace(' '*count, ' '*(count+1))     # Aumenta todas as instâncias de espaços (pode resultar em len(cad)>col)
+            count += 1                                      # Atualiza a dimensão atual das sequências de espaços
         while len(cad) > col:
-            cad = cad.replace(' '*count, ' '*(count-1))                   # Reduz todas as sequências em um espaço
-            cad = cad.replace(' '*(count-1), ' '*(count), col-len(cad))   # permitindo que se aumente cada uma das sequencias por 1 espaço   
-    return cad                                                            # da esquerda para a direita
+            cad = cad.replace(' '*count, ' '*(count-1))                     # Reduz todas as sequências por um espaço
+            cad = cad.replace(' '*(count-1), ' '*(count), col-len(cad))     # permitindo que se aumente gradualmente cada uma das sequencias por 1 espaço   
+    return cad                                                              
 
 def justifica_texto(cad, col):
     """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna.
@@ -55,8 +55,8 @@ def justifica_texto(cad, col):
     for i in range(lines-1):                                                # Itera sobre cada linha exceto a ultima
         done, next = corta_texto(next,col)                                  # Define a cadeia a ser adicionada e a sobrante
         if len(done) != col:
-            cad.append(str(insere_espacos(done, col)))                      # Adiciona à lista a cadeia cortada e espaçada                            # Prepara a cadeia inalterada para o proximo ciclo
-        else:                                                               ### POTENTIAL 42 44 FIX
+            cad.append(str(insere_espacos(done, col)))                      # Adiciona à lista a cadeia cortada e espaçada                            
+        else:                                                               
             cad.append(done)                                                 
     if len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
         cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     
