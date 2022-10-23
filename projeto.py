@@ -58,13 +58,15 @@ def justifica_texto(cad, col):
             cad.append(str(insere_espacos(done, col)))                      # Adiciona à lista a cadeia cortada e espaçada                            
         else:                                                               
             cad.append(done)                                                 
-    if len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
-        cad.append(str(insere_espacos(corta_texto(next,col)[0], col)))     
-        next = str(corta_texto(next,col)[1])    
-    cad.append(next.ljust(col,' '))                                         # A ultima porção de cada texto é unicamente justificada à esquerda
+    while len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
+        done, next = corta_texto(next,col) 
+        cad.append(str(insere_espacos(done, col)))        
+    if next.strip(' ') != '': cad.append(next.ljust(col,' '))                                         # A ultima porção de cada texto é unicamente justificada à esquerda
     return tuple(cad)
 
-print(justifica_texto('Ipsum dolore consectetur sed dolorem. Dolor sed eius consectetur consectetur dolore modi consectetur. Voluptatem sit velit amet dolor neque est. Quiquia porro tempora sed dolore adipisci dolore. Velit dolore numquam dolore dolor labore.', 20))
+cad = ('Ipsum dolore consectetur sed dolorem. Dolor sed eius consectetur consectetur dolore modi consectetur. Voluptatem sit velit amet dolor neque est. Quiquia porro tempora sed dolore adipisci dolore. Velit dolore numquam dolore dolor labore.')
+
+print(justifica_texto(cad, 20))
 
 ####################
 #2. Método de Hondt#
