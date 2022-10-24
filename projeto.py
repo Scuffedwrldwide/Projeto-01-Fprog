@@ -47,26 +47,22 @@ def justifica_texto(cad, col):
     if type(cad) != str or type(col) != int or col < 1 or ((not col >= cad.find(' ') > -1) and len(cad)>col) or len(cad) == 0:
         raise ValueError('justifica_texto: argumentos invalidos')              
 
-    lines = len(cad)//col                                                   # Prevê o número de linhas necessárias para a justificação
-    next = limpa_texto(cad)                                                 # Variavel que guarda o texto restante     
-    if len(cad) > col and lines == 1:                                       # Previne caso raro no qual uma unica linha resulta num output
-        lines += 1                                                          # que excede a largura definida. eg. justifica_texto('123456 789', 6)
+    lines = len(cad)//col                                           # Prevê o número de linhas necessárias para a justificação
+    next = limpa_texto(cad)                                         # Variavel que guarda o texto restante     
+    if len(cad) > col and lines == 1:                               # Previne caso raro no qual uma unica linha resulta num output
+        lines += 1                                                  # que excede a largura definida. eg. justifica_texto('123456 789', 6)
     cad = [] 
-    for i in range(lines-1):                                                # Itera sobre cada linha exceto a ultima
-        done, next = corta_texto(next,col)                                  # Define a cadeia a ser adicionada e a sobrante
+    for i in range(lines-1):                                        # Itera sobre cada linha exceto a ultima
+        done, next = corta_texto(next,col)                          # Define a cadeia a ser adicionada e a sobrante
         if len(done) != col:
-            cad.append(str(insere_espacos(done, col)))                      # Adiciona à lista a cadeia cortada e espaçada                            
+            cad.append(str(insere_espacos(done, col)))              # Adiciona à lista a cadeia cortada e espaçada                            
         else:                                                               
             cad.append(done)                                                 
-    while len(next) > col:                                                     # Caso a ultíma linha exceda o comprimento pedido
+    while len(next) > col:                                          # Caso a ultíma linha exceda o comprimento pedido
         done, next = corta_texto(next,col) 
         cad.append(str(insere_espacos(done, col)))        
-    if next.strip(' ') != '': cad.append(next.ljust(col,' '))                                         # A ultima porção de cada texto é unicamente justificada à esquerda
+    if next.strip(' ') != '': cad.append(next.ljust(col,' '))       # A ultima porção de cada texto é unicamente justificada à esquerda
     return tuple(cad)
-
-cad = ('Ipsum dolore consectetur sed dolorem. Dolor sed eius consectetur consectetur dolore modi consectetur. Voluptatem sit velit amet dolor neque est. Quiquia porro tempora sed dolore adipisci dolore. Velit dolore numquam dolore dolor labore.')
-
-print(justifica_texto(cad, 20))
 
 ####################
 #2. Método de Hondt#
@@ -131,20 +127,19 @@ def atribui_mandatos(votes, seats):
     contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção"""
     if not isinstance(seats, int) or seats <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
-    quo = calcula_quocientes(votes, seats)      
-    parties = []
+    table = calcula_quocientes(votes, seats)      
+    parties, results, place, quo = [], [], [], []                  
     for i in aux_sorter([(p,v) for p,v in votes.items()],1,1)[0]:
         if not isinstance(i[1],int) or i[1] <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
         parties.insert(0, i[0])                 # Ordem crescente por votos de uma lista de tuplos partido:votos
-    results = list(quo.values())                   
-    place = list()
-    for i in quo:
-        results.extend(results[0])              # Adiciona à lista 'results' os valores obtidos pelo método de hondt
-        results.pop(0)
-    results.sort(reverse = True)                # Ordena a lista por ordem decrescente de quocientes
-    for i in range(0, len(results)):            # Compara cada quociente da lista 'results'
-        for p in range(0, len(parties)):        # aos quocientes de cada partido segundo a lista 'quo'
-            if results[i] in quo.get(parties[p]):
+    for i in list(table.values()):
+        results.extend(i)                       # Adiciona à lista 'results' os valores obtidos pelo método de hondt
+    for q in results:
+        if q not in quo: quo.append(q)
+    quo.sort(reverse=True)
+    for n in range(0, len(quo)):                # Compara cada quociente da lista 'quo'
+        for p in range(0, len(parties)):        # aos quocientes de cada partido segundo a lista 'table' de resultados
+            if quo[n] in table.get(parties[p]):
                 place.append(parties[p])        # Adiciona os partidos à lista place por ordem de eleição de deputados
     return place[0:seats]                       # Limita a lista ao número de deputados pedido
 
@@ -293,3 +288,4 @@ def resolve_sistema(
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], prevsol))/matrix[i][i]
     return tuple(sol)
+   
