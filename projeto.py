@@ -64,6 +64,7 @@ def justifica_texto(cad, col):
     if next.strip(' ') != '': cad.append(next.ljust(col,' '))       # A ultima porção de cada texto é unicamente justificada à esquerda
     return tuple(cad)
 
+
 ####################
 #2. Método de Hondt#
 ####################
@@ -206,12 +207,17 @@ def obtem_resultado_eleicoes(info):
             par = 0                                     # Salvaguarda contra ignorar comparações de nº de votos
     return results
 
+
 ####################################
 #3. Solução de Sistemas de Equações#
 ####################################
 
 def aux_abssum_array(arg):
-    """Retorna a soma dos valores absolutos de uma lista ou tuplo"""
+    """
+    tuple -> float
+
+    Retorna a soma dos valores absolutos de uma lista ou tuplo
+    """
     sum = 0
     for i in arg: 
         if type(i) in [float, int]:
@@ -219,9 +225,13 @@ def aux_abssum_array(arg):
     return sum
 
 def produto_interno(left,right):
-    """Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
+    """
+    tuple X tuple -> float
+
+    Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
     representando e vetores; devolve um valor float correspondente 
-    ao produto interno desses vetores"""
+    ao produto interno desses vetores
+    """
     res = 0
     if len(left) != len(right): raise ValueError('resolve_sistema: argumentos invalidos')
     for i, n  in zip(left, right):
@@ -231,11 +241,13 @@ def produto_interno(left,right):
         res += i*n
     return float(res)
 
-def verifica_convergencia(
-        matrix, const, sol, 
-        acc):
-    """Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
-    um tuplo de soluções e um numero real correspondente à percisão pretendida"""
+def verifica_convergencia(matrix, const, sol, acc):
+    """
+    tuple X tuple X tuple X float -> Boolean
+
+    Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
+    um tuplo de soluções e um numero real correspondente à percisão pretendida
+    """
     for line, c in zip(matrix, const):
         if aux_abssum_array(sol) != 0 and produto_interno(line,sol) == 0 and c != 0: #Salvaguarda contra o caso de sistema impossível
             raise ValueError('resolve_sistema: argumentos invalidos')   
@@ -243,14 +255,20 @@ def verifica_convergencia(
     return True
 
 def retira_zeros_diagonal(matrix, const):
-    """Recebe um tuplo de tuplos representando as linhas de uma matriz, e um tuplo
-    de constantes"""
-    matrix, const = list(matrix), list(const)
+    """
+    tuple X tuple -> (tuple, tuple)
 
+    Recebe um tuplo de tuplos representando as linhas de uma matriz, e um tuplo
+    de constantes
+    """
+    matrix, const = list(matrix), list(const)
     for l in range(0, len(matrix)):
             for n in range(0, len(matrix)):
-                if not isinstance(matrix[l], tuple) or matrix[l] == (): raise ValueError('resolve_sistema: argumentos invalidos')
+
+                if not isinstance(matrix[l], tuple) or matrix[l] == () or len(matrix[l]) != len(matrix): 
+                    raise ValueError('resolve_sistema: argumentos invalidos')
                 if not type(matrix[l][l]) in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
+                
                 if  matrix[l][l] == 0 and matrix[n][l] != 0 and matrix[l][n] != 0:
                     matrix[l], matrix[n] = matrix[n], matrix[l]
                     const[l], const[n] = const[n], const[l]
@@ -258,33 +276,41 @@ def retira_zeros_diagonal(matrix, const):
     return tuple(matrix), tuple(const)
    
 def eh_diagonal_dominante(matrix):
-    """Recebe um tuplo de tuplos correspondente a uma matriz, verifica que o módulo do valor
-    constante na diagonal é superior à soma dos módulos dos restantes """
+    """
+    tuple -> Boolean
+
+    Recebe um tuplo de tuplos correspondente a uma matriz, verifica que o módulo do valor
+    constante na diagonal é superior à soma dos módulos dos restantes
+    """
     for line in matrix:
         if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]):
             return False
     return True
 
-def resolve_sistema(
-        matrix, const, 
-        acc):
-    """Recebe um tuplo constituido por tuplos de números representando uma matriz, 
-    um tuplo de constantes (float ou int) e uma constante correspondente à percisão"""
+def resolve_sistema(matrix, const, acc):
+    """
+    tuple X tuple X float -> tuple
 
-    if type(acc) != float or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos') #
+    Recebe um tuplo constituido por tuplos de números representando uma matriz, 
+    um tuplo de constantes (float ou int) e uma constante correspondente à percisão,
+    devolve um tuplo correspondente à estimativa das soluções da para a
+    matriz aumentada (matrix | const)
+    """
+
+    if type(acc) != float or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos') 
     if not isinstance(const, tuple) or not len(const) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
     if not isinstance(matrix, tuple) or not len(matrix) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
     if len(matrix) != len(const) or len(const) == 0: raise ValueError('resolve_sistema: argumentos invalidos')
 
     matrix, const = retira_zeros_diagonal(matrix, const)
-    sol = [0 for i in range(len(const))]
+    sol = [0 for i in range(len(const))]        # Solução trivial
     if not eh_diagonal_dominante(matrix):
         raise ValueError('resolve_sistema: matriz nao diagonal dominante')
     while not verifica_convergencia(matrix,const,sol,acc):
-        prevsol = sol.copy()
+        prevsol = sol.copy()                    # Garante a manutenção das soluções da iteração anterior
         for i in range(0, len(sol)):
             if len(matrix[i]) != len(matrix[0]) or len(matrix[i]) != len(const) or len(matrix[i]) != len(matrix):
-                raise ValueError('resolve_sistema: argumentos invalidos')
+                    raise ValueError('resolve_sistema: argumentos invalidos')   # Garante matriz quadrada e correto comprimento do vetor const
             if type(const[i]) not in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
             sol[i] = (sol[i]) + (const[i]-produto_interno(matrix[i], prevsol))/matrix[i][i]
     return tuple(sol)
