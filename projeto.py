@@ -1,11 +1,14 @@
-##########################
-#1. Justificação de Texto#
-##########################
+############################
+# 1. Justificação de Texto #
+############################
 
 def limpa_texto(cad):
-    """Recebe cadeia de caracteres (cad) e devolve uma cadeia correspondente à
-    remoção de caracteres ASCII brancos, substituidos pelo espaço (0x20)
-    eliminando ainda sequências contínuas de espaços"""
+    """
+    str -> str
+    Recebe cadeia de caracteres (cad) e devolve uma cadeia 
+    correspondente à remoção de caracteres ASCII brancos, substituidos 
+    pelo espaço (0x20), eliminando ainda sequências contínuas de espaços
+    """
     cad = cad.strip(' ')                # Remove espaços a cada lado do input
     toreplace = {0x09 : ' ',            # Devolve a cadeia fornecida trocando os caracteres definidos  pelo espaço ' '
                 0x0a : ' ', 
@@ -19,8 +22,14 @@ def limpa_texto(cad):
     return cad.strip(' ') 
 
 def corta_texto(cad, col):
-    """Limita cadeias de caracteres de acordo com a largura fornecida.
-    Devolve duas cadeias, a cadeia cortada e a sobrante cadeia inalterada"""
+    """
+    Limita cadeias de caracteres de acordo com a largura fornecida.
+    Devolve duas cadeias, a cadeia cortada e a sobrante cadeia 
+    inalterada
+
+    cad (str) -- Cadeia a cortar
+    col (int) -- Largura de coluna
+    """
     cut = cad[:col]  
     if len(cad) > col and cut.rfind(' ') != -1 and cad[col] != ' ': # Garante a manutenção de palavras completas, contando com o contexto da cadeia
         cut = cut[:cut.rfind(' ')].strip(' ')                       # Limita a cadeia cortada até ao ultimo espaço eliminando palavras incompletas
@@ -28,7 +37,14 @@ def corta_texto(cad, col):
     return cut, uncut      
 
 def insere_espacos(cad, col):
-    """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna"""
+    """
+    Recebe cadeia de caracteres e um inteiro correspondente à largura da 
+    coluna. Devolve a cadeia com espaços inseridos de modo a preencher 
+    a largura especificada
+
+    cad (str) -- Cadeia a modificar
+    col (int) -- Largura de coluna
+    """
     if cad.find(' ') == -1:                                 # Não encontrar espaços implica a existência de uma só palavra 
         return cad.ljust(col,' ')                                     
     else:
@@ -42,8 +58,13 @@ def insere_espacos(cad, col):
     return cad                                                              
 
 def justifica_texto(cad, col):
-    """Recebe cadeia de caracteres e um inteiro correspondente à largura da coluna.
-    Aceita tuplos."""
+    """
+    Recebe cadeia de caracteres e um inteiro correspondente à largura da 
+    coluna. Aceita tuplos.
+
+    cad (str) -- Cadeia a modificar
+    col (int) -- Largura de coluna
+    """
     if type(cad) != str or type(col) != int or col < 1 or ((not col >= cad.find(' ') > -1) and len(cad)>col) or len(cad) == 0:
         raise ValueError('justifica_texto: argumentos invalidos')              
 
@@ -65,68 +86,97 @@ def justifica_texto(cad, col):
     return tuple(cad)
 
 
-####################
-#2. Método de Hondt#
-####################
+######################
+# 2. Método de Hondt #
+######################
 
 def aux_check_arg(arg,typ):
-    """Recebe um argumento de qualquer tipo, bem como o tipo (type) experado,
-    efetua a verificação de argumentos, não retornando qualquer valor"""
-    if (type(arg) == dict and arg == {}) or (type(arg) == list and arg == ()) or (type(arg) == int and arg < 0) or (type(arg) == tuple and arg ==()):
-        raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+    """
+    Recebe um argumento de qualquer tipo, bem como o tipo (typ) 
+    experado, efetua a verificação de argumentos, não retornando 
+    qualquer valor.
+    """
+    if (type(arg) == dict and arg == {}) \
+        or (type(arg) == list and arg == ()) \
+        or (type(arg) == int and arg < 0) \
+        or (type(arg) == tuple and arg ==()):
+            raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     if type(arg) != typ:
         raise ValueError('obtem_resultado_eleicoes: argumento invalido')
 
 def aux_obtem_partido_votos(info, dep=0):
-    """Dado um dicionário contendo os resultados de vários circlos eleitorais
-    devolve uma lista de dicionários contendo a informação partido:votos
-    ou, opcionalmente, a lista do número de deputados a serem eleitos por circulo"""
+    """
+    Dado um dicionário contendo os resultados de vários circlos 
+    eleitorais, devolve uma lista de dicionários contendo a informação 
+    partido:votos ou, opcionalmente, a lista do número de deputados a 
+    serem eleitos por circulo
+
+    info (dict) -- Informação eleitoral
+    dep (int)   -- Seletor de funcionalidade opcional
+    """
     circles = list(info.values())               # Lista dos dicionários-resultado dos vários circulos
     results = []
     for c in circles:  
-        if (not isinstance(c, dict)) or c == {} or len(c) != 2: raise ValueError('obtem_resultado_eleicoes: argumento invalido')                     
+        if (not isinstance(c, dict)) or c == {} or len(c) != 2: 
+            raise ValueError('obtem_resultado_eleicoes: argumento invalido')                     
         if dep == 1:                            # (opcional) Em cada resultado de um circulo eleitoral, encontrar 
             results.append(c.get('deputados'))  # o dicionário deputados:'int'
         else:                                   # Em cada resultado de um circulo eleitoral, encontrar 
             results.append(c.get('votos'))      # o dicionário partido:votos
     return results
 
-def aux_sorter(
-    lst, par, index):
-    """Compara e ordena arrays de uma lista com base num critério presente num dado index """
-    breaker = 0                                 # Failsafe contra IndexErrors
+def aux_sorter(lst, par, index):
+    """
+    Compara e ordena arrays de uma lista com base num critério presente 
+    num dado index começando a partir de um dado par de arrays.
+
+    lst (list)  -- Lista de arrays a serem comparados
+    par (int)   -- Par a comparar
+    index (int) -- Indice dos dados a serem comparados
+    """
+    breaker = 0                             # Failsafe contra IndexErrors
     for i in range(len(lst)):
         aux_check_arg((lst[par-1])[index],int)   
         if not len(lst) <= par: aux_check_arg((lst[par])[index],int)
-        else: break                             # evita IndexErros no caso de só existir um partido
+        else: break                         # Evita IndexErros no caso de só existir um partido
         if (lst[par-1])[index] < (lst[par])[index]:
                     lst.append(lst[par-1])
                     lst.remove(lst[par-1])
                     par = 1
-        elif par == len(lst) - 1:               # Evita que 'par' exceda o indice máximo da lista                 
-            breaker = 1
+        elif par == len(lst) - 1:           # Evita que 'par' exceda o indice máximo da lista                 
+            breaker = 1                     # Variavel de retorno evita que a função seja chamada outra vez
         else:
-            par += 1                            # Caso não haja operação a efetuar, avança-se para o par seguinte
+            par += 1                        # Caso não haja operação a efetuar, avança-se para o par seguinte
     return (lst, breaker)
 
 def calcula_quocientes(votes, seats):        
-    """"Aceita um dicionário partidos : no. de votos e devolve um dicionário 
-    distinto do original com os quocientes dos resultados
-    desses partidos, segundo o método de Hondt"""
-    results = dict(votes)                    # Cria um dicionário-alvo para os quocientes
+    """"
+    Aceita um dicionário partidos : no. de votos e devolve um dicionário 
+    distinto do original com os quocientes dos resultados desses 
+    partidos, segundo o método de Hondt.
+
+    votes (dict) -- Informação eleitoral
+    seats (int)  -- no. de mandatos a atribuír
+    """
+    results = dict(votes)                   # Cria um dicionário-alvo para os quocientes
     parties = list(votes.keys())
-    for i in range(0,len(parties)):          # Itera sobre todas as entradas ou "partidos"
-        quo = list()                         # Cria uma lista-destino para os quocientes a serem calculados
+    for i in range(0,len(parties)):         # Itera sobre todas as entradas ou "partidos"
+        quo = list()                        # Cria uma lista-destino para os quocientes a serem calculados
         for d in range(1,seats+1):  
             if not isinstance(votes[parties[i]], int): raise ValueError('obtem_resultado_eleicoes: argumento invalido')    
-            quo.append(votes[parties[i]]/d)  # Adiciona o quociente dos votos do partido a ser trabalhado ao fim da lista
-        results.update({parties[i]: quo})    # Atualiza a entrada do respetivo partido com os resultados apurados
+            quo.append(votes[parties[i]]/d) # Adiciona o quociente dos votos do partido a ser trabalhado ao fim da lista
+        results.update({parties[i]: quo})   # Atualiza a entrada do respetivo partido com os resultados apurados
     return results
 
 def atribui_mandatos(votes, seats):
-    """Aceita um dicionário partidos:n. de votos e um inteiro e devolve uma lista
-    contendo a lista ordenada dos partidos que obtiveram deputados,
-    por ordem de obtenção"""
+    """
+    Aceita um dicionário partidos:n. de votos e um inteiro e devolve uma
+    lista contendo a lista ordenada dos partidos que obtiveram deputados,
+    por ordem de obtenção.
+
+    votes (dict) -- Informação eleitoral
+    seats (int)  -- no. de mandatos a atribuír
+    """
     if not isinstance(seats, int) or seats <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     table = calcula_quocientes(votes, seats)      
     parties, results, place, quo = [], [], [], []                  
@@ -145,10 +195,14 @@ def atribui_mandatos(votes, seats):
     return place[0:seats]                       # Limita a lista ao número de deputados pedido
 
 def obtem_partidos(info):
-    ### DUVIDA, POSSO VERIFICAR ARGUMENTOS NESTA FUNÇÃO ###
-    """Aceita um dicionário cujos valores são dicionários, que por sua vez
-    é constituido por dicionários e devolve a lista alfabéticamente ordenada das chaves
-    destes ultimos, evitando repetições"""
+    """
+    Aceita um dicionário cujos valores são dicionários, que por sua vez
+    é constituido por dicionários e devolve a lista alfabéticamente 
+    ordenada das chaves destes ultimos, evitando repetições.
+
+    votes (dict) -- Informação eleitoral
+    seats (int)  -- no. de mandatos a atribuír
+    """
     results = aux_obtem_partido_votos(info)
     parties = []
     for i in results:                           # por cada dicionário partido:votos
@@ -162,19 +216,28 @@ def obtem_partidos(info):
     return parties
 
 def obtem_resultado_eleicoes(info):
-    """Aceita um dicionário com várias parcelas de informação (Circulo, Deputados, Votos, Partidos), 
-    por sua vez contida em dicionários (Deputados, Votos), e devolve uma lista de tuplos
-    com a relevante informação devidamente analizada (Partido, Deputados, Votos)"""
-
-    if not isinstance(info, dict) or info == {}: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+    """
+    Aceita um dicionário com várias parcelas de informação 
+    (Circulo -> Deputados, Votos -> Partidos), por sua vez contida em 
+    dicionários (Deputados, Votos), e devolve uma lista de tuplos com a 
+    relevante informação devidamente analizada (Partido, Deputados, Votos)
+    
+    info (dict) -- Dicionário de ciclos eleitorais
+    """
+    if not isinstance(info, dict) or info == {}: 
+        raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     parties = obtem_partidos(info)                      # Lista alfabética dos partidos
-    if not isinstance(parties, list) or parties == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+    if not isinstance(parties, list) or parties == []: 
+        raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     circles = aux_obtem_partido_votos(info)             # Lista dos vários resultados por circulo
-    if not isinstance(circles, list) or circles == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+    if not isinstance(circles, list) or circles == []: 
+        raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     dep = aux_obtem_partido_votos(info, 1)              # Lista correspondente aos deputados por circulo
-    if not isinstance(dep, list) or dep == []: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+    if not isinstance(dep, list) or dep == []: 
+        raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     for i in info.keys():
-        if not isinstance(i, str) or i == '': raise ValueError('obtem_resultado_eleicoes: argumento invalido')
+        if not isinstance(i, str) or i == '': 
+            raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     seats = 0
     results = []
     par = 0                                             # Variável usada na ordenação de resultados
@@ -208,16 +271,12 @@ def obtem_resultado_eleicoes(info):
     return results
 
 
-####################################
-#3. Solução de Sistemas de Equações#
-####################################
+######################################
+# 3. Solução de Sistemas de Equações #
+######################################
 
 def aux_abssum_array(arg):
-    """
-    tuple -> float
-
-    Retorna a soma dos valores absolutos de uma lista ou tuplo
-    """
+    """ Retorna a soma dos valores absolutos de uma lista ou tuplo """
     sum = 0
     for i in arg: 
         if type(i) in [float, int]:
@@ -226,16 +285,16 @@ def aux_abssum_array(arg):
 
 def produto_interno(left,right):
     """
-    tuple X tuple -> float
+    Recebe dois tuplos de igual tamanho constituido por inteiros ou 
+    reais, representando e vetores; devolve um valor float 
+    correspondente ao produto interno desses vetores.
 
-    Recebe dois tuplos de igual tamanho constituido por inteiros ou reais e
-    representando e vetores; devolve um valor float correspondente 
-    ao produto interno desses vetores
+    left   (tuple) -- Vetor
+    right  (tuple) -- Vetor
     """
     res = 0
     if len(left) != len(right): raise ValueError('resolve_sistema: argumentos invalidos')
     for i, n  in zip(left, right):
-    ### DUVIDA: TORNAR VERIFICAÇÃO MAIS COMPACTA??###
         if (type(i) not in [int, float]) or (type(n) not in [int, float]):
             raise ValueError('resolve_sistema: argumentos invalidos')
         res += i*n
@@ -245,8 +304,14 @@ def verifica_convergencia(matrix, const, sol, acc):
     """
     tuple X tuple X tuple X float -> Boolean
 
-    Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de constantes,
-    um tuplo de soluções e um numero real correspondente à percisão pretendida
+    Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de
+    constantes, um tuplo de soluções e um numero real correspondente 
+    à percisão pretendida
+
+    matrix (tuple) -- Tuplo que representa a matriz
+    const  (tuple) -- Vetor de constantes
+    sol    (tuple) -- Vetor de soluções
+    acc    (float) -- Precisão pertendida
     """
     for line, c in zip(matrix, const):
         if aux_abssum_array(sol) != 0 and produto_interno(line,sol) == 0 and c != 0: #Salvaguarda contra o caso de sistema impossível
@@ -256,10 +321,11 @@ def verifica_convergencia(matrix, const, sol, acc):
 
 def retira_zeros_diagonal(matrix, const):
     """
-    tuple X tuple -> (tuple, tuple)
+    Recebe um tuplo de tuplos representando as linhas de uma matriz, e 
+    um tuplo de constantes
 
-    Recebe um tuplo de tuplos representando as linhas de uma matriz, e um tuplo
-    de constantes
+    matrix (tuple) -- Tuplo que representa a matriz
+    const  (tuple) -- Vetor de constantes
     """
     matrix, const = list(matrix), list(const)
     for l in range(0, len(matrix)):
@@ -269,18 +335,19 @@ def retira_zeros_diagonal(matrix, const):
                     raise ValueError('resolve_sistema: argumentos invalidos')
                 if not type(matrix[l][l]) in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
                 
-                if  matrix[l][l] == 0 and matrix[n][l] != 0 and matrix[l][n] != 0:
-                    matrix[l], matrix[n] = matrix[n], matrix[l]
+                if  matrix[l][l] == 0 and matrix[n][l] != 0 and matrix[l][n] != 0:  # Garante que a linha seguinte não possui
+                    matrix[l], matrix[n] = matrix[n], matrix[l]                     # um 0 numa posição de futura diagonal
                     const[l], const[n] = const[n], const[l]
                     break
     return tuple(matrix), tuple(const)
    
 def eh_diagonal_dominante(matrix):
     """
-    tuple -> Boolean
+    Recebe um tuplo de tuplos correspondente a uma matriz, verifica que
+    o módulo do valor constante na diagonal é superior à soma dos 
+    módulos dos restantes valores da linha.
 
-    Recebe um tuplo de tuplos correspondente a uma matriz, verifica que o módulo do valor
-    constante na diagonal é superior à soma dos módulos dos restantes
+    matrix (tuple) -- Tuplo que representa a matriz
     """
     for line in matrix:
         if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]):
@@ -289,17 +356,19 @@ def eh_diagonal_dominante(matrix):
 
 def resolve_sistema(matrix, const, acc):
     """
-    tuple X tuple X float -> tuple
-
-    Recebe um tuplo constituido por tuplos de números representando uma matriz, 
-    um tuplo de constantes (float ou int) e uma constante correspondente à percisão,
-    devolve um tuplo correspondente à estimativa das soluções da para a
-    matriz aumentada (matrix | const)
+    Recebe um tuplo constituido por tuplos de números representando uma 
+    matriz, um tuplo de constantes (float ou int) e uma constante 
+    correspondente à percisão, devolve um tuplo correspondente à 
+    estimativa das soluções da para a matriz aumentada (matrix | const)
+    
+    matrix (tuple) -- Tuplo que representa a matriz
+    const  (tuple) -- Vetor de constantes
+    acc    (float) -- Precisão pretendida
     """
 
     if type(acc) != float or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos') 
-    if not isinstance(const, tuple) or not len(const) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
-    if not isinstance(matrix, tuple) or not len(matrix) >= 1: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(const, tuple) or len(const) < 1: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(matrix, tuple) or not len(matrix) < 1: raise ValueError('resolve_sistema: argumentos invalidos') 
     if len(matrix) != len(const) or len(const) == 0: raise ValueError('resolve_sistema: argumentos invalidos')
 
     matrix, const = retira_zeros_diagonal(matrix, const)
