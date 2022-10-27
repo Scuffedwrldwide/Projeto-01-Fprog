@@ -330,7 +330,6 @@ def retira_zeros_diagonal(matrix, const):
     matrix, const = list(matrix), list(const)
     for l in range(0, len(matrix)):
             for n in range(0, len(matrix)):
-
                 if not isinstance(matrix[l], tuple) or matrix[l] == () or len(matrix[l]) != len(matrix): 
                     raise ValueError('resolve_sistema: argumentos invalidos')
                 if not type(matrix[l][l]) in [int, float]: raise ValueError('resolve_sistema: argumentos invalidos')
@@ -368,7 +367,7 @@ def resolve_sistema(matrix, const, acc):
 
     if type(acc) != float or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos') 
     if not isinstance(const, tuple) or len(const) < 1: raise ValueError('resolve_sistema: argumentos invalidos') 
-    if not isinstance(matrix, tuple) or not len(matrix) < 1: raise ValueError('resolve_sistema: argumentos invalidos') 
+    if not isinstance(matrix, tuple) or len(matrix) < 1: raise ValueError('resolve_sistema: argumentos invalidos') 
     if len(matrix) != len(const) or len(const) == 0: raise ValueError('resolve_sistema: argumentos invalidos')
 
     matrix, const = retira_zeros_diagonal(matrix, const)
