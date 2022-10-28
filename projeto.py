@@ -27,8 +27,9 @@ def corta_texto(cad, col):
     Devolve duas cadeias, a cadeia cortada e a sobrante cadeia 
     inalterada
 
-    cad (str) -- Cadeia a cortar
-    col (int) -- Largura de coluna
+    cad (str)      -- Cadeia a cortar
+    col (int)      -- Largura de coluna
+    return (tuple) -- Linha justificada e texto restante
     """
     cut = cad[:col]  
     if len(cad) > col and cut.rfind(' ') != -1 and cad[col] != ' ': # Garante a manutenção de palavras completas, contando com o contexto da cadeia
@@ -42,8 +43,9 @@ def insere_espacos(cad, col):
     coluna. Devolve a cadeia com espaços inseridos de modo a preencher 
     a largura especificada
 
-    cad (str) -- Cadeia a modificar
-    col (int) -- Largura de coluna
+    cad (str)    -- Cadeia a modificar
+    col (int)    -- Largura de coluna
+    return (str) -- Cadeia modificada
     """
     if cad.find(' ') == -1:                                 # Não encontrar espaços implica a existência de uma só palavra 
         return cad.ljust(col,' ')                                     
@@ -53,8 +55,8 @@ def insere_espacos(cad, col):
             cad = cad.replace(' '*count, ' '*(count+1))     # Aumenta todas as instâncias de espaços (pode resultar em len(cad)>col)
             count += 1                                      # Atualiza a dimensão atual das sequências de espaços
         while len(cad) > col:
-            cad = cad.replace(' '*count, ' '*(count-1))                     # Reduz todas as sequências por um espaço
-            cad = cad.replace(' '*(count-1), ' '*(count), col-len(cad))     # permitindo que se aumente gradualmente cada uma das sequencias por 1 espaço   
+            cad = cad.replace(' '*count, ' '*(count-1))                     # Reduz todas as sequências por um espaço permitindo que se aumente
+            cad = cad.replace(' '*(count-1), ' '*(count), col-len(cad))     # gradualmente cada uma das sequencias por 1 espaço   
     return cad                                                              
 
 def justifica_texto(cad, col):
@@ -62,8 +64,9 @@ def justifica_texto(cad, col):
     Recebe cadeia de caracteres e um inteiro correspondente à largura da 
     coluna. Aceita tuplos.
 
-    cad (str) -- Cadeia a modificar
-    col (int) -- Largura de coluna
+    cad (str)      -- Cadeia a modificar
+    col (int)      -- Largura de coluna
+    return (tuple) -- Conjunto de cadeias justificadas
     """
     if type(cad) != str or type(col) != int or col < 1 or ((not col >= cad.find(' ') > -1) and len(cad)>col) or len(cad) == 0:
         raise ValueError('justifica_texto: argumentos invalidos')              
@@ -155,8 +158,9 @@ def calcula_quocientes(votes, seats):
     distinto do original com os quocientes dos resultados desses 
     partidos, segundo o método de Hondt.
 
-    votes (dict) -- Informação eleitoral
-    seats (int)  -- no. de mandatos a atribuír
+    votes (dict)   -- Informação eleitoral
+    seats (int)    -- no. de mandatos a atribuír
+    results (dict) -- Dicionário (Partidos : [Quocientes])
     """
     results = dict(votes)                   # Cria um dicionário-alvo para os quocientes
     parties = list(votes.keys())
@@ -174,8 +178,9 @@ def atribui_mandatos(votes, seats):
     lista contendo a lista ordenada dos partidos que obtiveram deputados,
     por ordem de obtenção.
 
-    votes (dict) -- Informação eleitoral
-    seats (int)  -- no. de mandatos a atribuír
+    votes (dict)  -- Informação eleitoral
+    seats (int)   -- no. de mandatos a atribuír
+    return (list) -- Lista de mandatos
     """
     if not isinstance(seats, int) or seats <= 0: raise ValueError('obtem_resultado_eleicoes: argumento invalido')
     table = calcula_quocientes(votes, seats)      
@@ -200,14 +205,15 @@ def obtem_partidos(info):
     é constituido por dicionários e devolve a lista alfabéticamente 
     ordenada das chaves destes ultimos, evitando repetições.
 
-    votes (dict) -- Informação eleitoral
-    seats (int)  -- no. de mandatos a atribuír
+    votes (dict)  -- Informação eleitoral
+    seats (int)   -- no. de mandatos a atribuír
+    return (list) -- Lista de Partidos
     """
     results = aux_obtem_partido_votos(info)
     parties = []
-    for i in results:                           # por cada dicionário partido:votos
+    for i in results:                           # Por cada dicionário partido:votos
         aux_check_arg(i,dict)
-        parties.extend(list(i.keys()))          # adicionar os partidos encontrados à lista de assentos         
+        parties.extend(list(i.keys()))          # adicionar os partidos encontrados à lista de candidatos         
     for p in parties.copy():                    # Nome de partido deve ser uma string não vazia
         if not isinstance(p, str) or p == '': raise ValueError('obtem_resultado_eleicoes: argumento invalido') # Verificação dos argumentos referentes ao partido
         for l in range(parties.count(p)-1):     # Se existe mais do que uma instância de um partido i
@@ -222,7 +228,8 @@ def obtem_resultado_eleicoes(info):
     dicionários (Deputados, Votos), e devolve uma lista de tuplos com a 
     relevante informação devidamente analizada (Partido, Deputados, Votos)
     
-    info (dict) -- Dicionário de ciclos eleitorais
+    info (dict)   -- Dicionário de ciclos eleitorais
+    return (list) -- Lista de tuplos (Partido, Deputados, Votos)
     """
     if not isinstance(info, dict) or info == {}: 
         raise ValueError('obtem_resultado_eleicoes: argumento invalido')
@@ -241,7 +248,7 @@ def obtem_resultado_eleicoes(info):
     seats = 0
     results = []
     par = 0                                             # Variável usada na ordenação de resultados
-    
+
     for p in parties:
         votecount = 0
         seats = 0
@@ -291,6 +298,7 @@ def produto_interno(left,right):
 
     left   (tuple) -- Vetor
     right  (tuple) -- Vetor
+    return (float) -- Produto Interno
     """
     res = 0
     if len(left) != len(right): raise ValueError('resolve_sistema: argumentos invalidos')
@@ -302,8 +310,6 @@ def produto_interno(left,right):
 
 def verifica_convergencia(matrix, const, sol, acc):
     """
-    tuple X tuple X tuple X float -> Boolean
-
     Recebe uma matriz na forma de um tuplo contendo tuplos, um tuplo de
     constantes, um tuplo de soluções e um numero real correspondente 
     à percisão pretendida
@@ -312,6 +318,7 @@ def verifica_convergencia(matrix, const, sol, acc):
     const  (tuple) -- Vetor de constantes
     sol    (tuple) -- Vetor de soluções
     acc    (float) -- Precisão pertendida
+    return (bool)  -- Verifica-se a convergência
     """
     for line, c in zip(matrix, const):
         if aux_abssum_array(sol) != 0 and produto_interno(line,sol) == 0 and c != 0: #Salvaguarda contra o caso de sistema impossível
@@ -326,6 +333,7 @@ def retira_zeros_diagonal(matrix, const):
 
     matrix (tuple) -- Tuplo que representa a matriz
     const  (tuple) -- Vetor de constantes
+    return (tuple) -- Tuplos matrix e const atualizados
     """
     matrix, const = list(matrix), list(const)
     for l in range(0, len(matrix)):
@@ -347,6 +355,7 @@ def eh_diagonal_dominante(matrix):
     módulos dos restantes valores da linha.
 
     matrix (tuple) -- Tuplo que representa a matriz
+    return (bool)
     """
     for line in matrix:
         if abs(line[matrix.index(line)]) < aux_abssum_array(line) - abs(line[matrix.index(line)]):
@@ -363,6 +372,7 @@ def resolve_sistema(matrix, const, acc):
     matrix (tuple) -- Tuplo que representa a matriz
     const  (tuple) -- Vetor de constantes
     acc    (float) -- Precisão pretendida
+    return (tuple) -- Vetor das soluções
     """
 
     if type(acc) != float or acc <= 0: raise ValueError('resolve_sistema: argumentos invalidos') 
